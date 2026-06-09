@@ -1244,14 +1244,13 @@
     <div style="font-size:0.82rem; line-height:1.9; color:rgba(255,200,150,0.85)">
       <div>🐉🔑 <b style="color:#C44CFF">DRAGON VAULT</b> – Collect 5 keys → GRAND pick game!</div>
       <div>🐱×3 <b style="color:#FFD700">CAT SHRINE</b> – Pick a lucky cat!</div>
-      <div>🐲×3 <b style="color:#FFD700">DRAGON EGG</b> – Hatch a prize!</div>
-      <div>🧧×4 <b style="color:#FFD700">ENVELOPE RAIN</b> – Tap to grab!</div>
-      <div>🐠×5 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
+      <div>😸×3 or 🐉×3 <b style="color:#FFD700">DRAGON EGG</b> – Hatch a prize!</div>
+      <div>🧧×3 <b style="color:#FFD700">ENVELOPE RAIN</b> – Tap to grab!</div>
+      <div>🐠×3 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
       <div>🔮×3 <b style="color:#FFD700">FORTUNE WHEEL</b> – Spin for riches!</div>
-      <div>🦀×5 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
+      <div>🐾×3 <b style="color:#FFD700">PAW RACE</b> – Back the lucky paw!</div>
       <div>🐙 = <b style="color:#9B59B6">WILD</b> (stacks!) · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
       <div>🌙×3 = <b style="color:#C44CFF">DRAGON STAMPEDE</b> free spins</div>
-      <div>🌙 <b style="color:#C8A8FF">LUCKY MOON</b> – rare high-value symbol</div>
       <div>🌸×4 <b style="color:#00FF88">FREE SPINS</b> · 🔥 <b style="color:#FF6644">HOT STREAK</b></div>
     </div>
   </div>
@@ -1272,8 +1271,9 @@
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v1.7 · Lucky Paws Casino</summary>
+    <summary>v1.8 · Lucky Paws Casino</summary>
     <div id="changelog">
+      <b>v1.8</b> — Rebalanced symbols back to cat theme: replaced crab/pufferfish/shrimp/butterfly with 😸 Happy Neko, 🐾 Lucky Paw, 🏮 Red Lantern, 🔔 Lucky Bell. Paw Race replaces Crab Race (🐱 cats run!), Happy Neko triggers Dragon Egg<br>
       <b>v1.7</b> — Dollar currency display, win line alignment fix (dead space removed), wild stacking (2+ wilds = full reel wild), Dragon Stampede bonus (🌙×3 → multiplying free spins), dragon decoration removed<br>
       <b>v1.6</b> — 14 symbols (added Moon 🌙, Butterfly 🦋, Shrimp 🍤), WILD badge on Octopus cells, mini games now require 3+ of symbol on a payline, Dragon Egg fully random prize pool with Fisher-Yates shuffle, version footer visible on mobile<br>
       <b>v1.5</b> — Mobile layout fix (spin button always visible), Dragon Egg real variance, mini game combo trigger banners, hot streak/notification ghost fixes, bottom artifact removed, win frequency reduced<br>
@@ -1429,12 +1429,12 @@ const SYMBOLS = [
   { id: 'dragon',    emoji: '🐉', name: 'Lucky Dragon',    values: [0,0,25,90,300],   rarity: 5,  color: '#E74C3C' },
   { id: 'fortune',   emoji: '🔮', name: 'Fortune Orb',     values: [0,0,20,70,200],   rarity: 6,  color: '#8E44AD' },
   { id: 'hongbao',   emoji: '🧧', name: 'Red Envelope',    values: [0,0,15,50,150],   rarity: 7,  color: '#FF4444' },
-  { id: 'clownfish', emoji: '🐠', name: 'Clownfish',       values: [0,0,12,40,120],   rarity: 8,  color: '#FF8C00' },
-  { id: 'crab',      emoji: '🦀', name: 'Lucky Crab',      values: [0,0,8,28,80],     rarity: 9,  color: '#E74C3C' },
-  { id: 'butterfly', emoji: '🦋', name: 'Lucky Butterfly',  values: [0,0,7,22,65],     rarity: 10, color: '#FF69B4' },
-  { id: 'pufferfish',emoji: '🐡', name: 'Pufferfish',      values: [0,0,6,20,55],     rarity: 11, color: '#3498DB' },
+  { id: 'neko',      emoji: '😸', name: 'Happy Neko',      values: [0,0,12,40,120],   rarity: 8,  color: '#FFB84D' },
+  { id: 'paw',       emoji: '🐾', name: 'Lucky Paw',       values: [0,0,8,28,80],     rarity: 9,  color: '#FFD700' },
+  { id: 'lantern',   emoji: '🏮', name: 'Red Lantern',     values: [0,0,7,22,65],     rarity: 10, color: '#FF4444' },
+  { id: 'clownfish', emoji: '🐠', name: 'Clownfish',       values: [0,0,6,20,55],     rarity: 11, color: '#FF8C00' },
   { id: 'blossom',   emoji: '🌸', name: 'Cherry Blossom',  values: [0,0,4,14,40],     rarity: 12, color: '#FF69B4', isScatter2: true },
-  { id: 'shrimp',    emoji: '🍤', name: 'Lucky Shrimp',    values: [0,0,3,10,28],     rarity: 13, color: '#FF8C44' },
+  { id: 'bell',      emoji: '🔔', name: 'Lucky Bell',      values: [0,0,3,10,28],     rarity: 13, color: '#FFD700' },
   { id: 'coin',      emoji: '🪙', name: 'Fortune Coin',    values: [0,0,2,8,20],      rarity: 14, color: '#F1C40F' },
 ];
 
@@ -1787,7 +1787,8 @@ function evaluateResult() {
   const fortuneOnLine = maxOnLine('fortune');
   const hongbaoOnLine = maxOnLine('hongbao');
   const fishOnLine    = maxOnLine('clownfish');
-  const crabOnLine    = maxOnLine('crab');
+  const pawOnLine     = maxOnLine('paw');
+  const nekoOnLine    = maxOnLine('neko');
 
   // Keep flat counts for stat tracking only
   const dragonCount  = flat.filter(s => SYMBOLS[s].id === 'dragon').length;
@@ -1897,11 +1898,12 @@ function evaluateResult() {
   let triggerLabel = null;
 
   if (catCount >= 3)             { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
+  else if (nekoOnLine >= 3)     { triggerFn = () => triggerDragonEgg();    triggerLabel = `😸×${nekoOnLine} HAPPY NEKOS!`; }
   else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
   else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
   else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
   else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
-  else if (crabOnLine >= 3)     { triggerFn = () => triggerCrabRace();     triggerLabel = `🦀×${crabOnLine} ON A LINE!`; }
+  else if (pawOnLine >= 3)      { triggerFn = () => triggerCrabRace();     triggerLabel = `🐾×${pawOnLine} LUCKY PAWS!`; }
   else if (blossomCount >= 4)   {
     triggerLabel = `🌸×${blossomCount} BLOSSOM!`;
     triggerFn = () => {
@@ -2645,25 +2647,25 @@ function triggerHongbaoRain() {
   }, 6000);
 }
 
-// CRAB RACE
+// PAW RACE (formerly Crab Race)
 function triggerCrabRace() {
   const bet = state.bet;
-  const crabNames = ['Red Claw 🦀', 'Blue Shell 🦀', 'Golden Pincer 🦀'];
+  const crabNames = ['Orange Paws 🐾', 'Tuxedo Paws 🐾', 'Golden Paws 🐾'];
   const yourCrabIdx = Math.floor(Math.random() * 3);
 
   const lanesHTML = `<div id="crab-race-wrap">` + crabNames.map((name, i) => `
     <div class="crab-lane ${i === yourCrabIdx ? 'your-crab' : ''}">
       <span class="crab-label">${i === yourCrabIdx ? '⭐ YOU' : 'CPU'}</span>
-      <span class="crab-racer" id="crab-${i}">🦀</span>
+      <span class="crab-racer" id="crab-${i}">🐱</span>
       <div class="crab-track"><div class="crab-progress" id="crab-prog-${i}"></div></div>
     </div>
   `).join('') + `<div style="text-align:center"><button id="race-btn" onclick="startCrabRace(${yourCrabIdx}, ${bet})" style="
     margin-top:12px;background:linear-gradient(135deg,#CC2200,#FF4400);border:2px solid gold;
     border-radius:10px;color:gold;font-size:1.1rem;font-weight:700;padding:10px 28px;cursor:pointer;">
-    🦀 START RACE!
+    🐾 START RACE!
   </button></div></div>`;
 
-  openMiniGame('🦀 CRAB RACE!', `Your crab is marked ⭐ — win to get ${bet * 10} coins!`, lanesHTML, null);
+  openMiniGame('🐾 PAW RACE!', `Your cat is marked ⭐ — win to get ${fmt$(bet * 10)}!`, lanesHTML, null);
 }
 
 let crabRaceRunning = false;

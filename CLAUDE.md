@@ -27,7 +27,7 @@
 
 Both are inside `<!-- VERSION FOOTER -->` near the bottom of `index.html`.
 
-## Current version: v1.7
+## Current version: v1.8
 
 ## Development branch
 Always develop on `claude/sleepy-wozniak-3f4rxt` and PR into `main`.
