@@ -1287,8 +1287,9 @@
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v1.9 · Lucky Paws Casino</summary>
+    <summary>v1.9.1 · Lucky Paws Casino</summary>
     <div id="changelog">
+      <b>v1.9.1</b> — Paw Race: cat racers now have fun names (Chairman Meow, Dumpling, Soy Sauce…), removed CPU/crab references, result messages updated, achievement renamed to Paw Champ<br>
       <b>v1.9</b> — Win lines crisp on retina (DPR-scaled canvas), win description shows wild involvement (🐙+🔮×3), total bet display (bet×lines), persistent last-win amount in balance bar<br>
       <b>v1.8</b> — Rebalanced symbols back to cat theme: replaced crab/pufferfish/shrimp/butterfly with 😸 Happy Neko, 🐾 Lucky Paw, 🏮 Red Lantern, 🔔 Lucky Bell. Paw Race replaces Crab Race (🐱 cats run!), Happy Neko triggers Dragon Egg<br>
       <b>v1.7</b> — Dollar currency display, win line alignment fix (dead space removed), wild stacking (2+ wilds = full reel wild), Dragon Stampede bonus (🌙×3 → multiplying free spins), dragon decoration removed<br>
@@ -1571,7 +1572,7 @@ const ACHIEVEMENTS = [
   { id: 'jackpot',        label: '🏆 Jackpot!!!',       icon: '🏆', desc: 'Hit the jackpot!',               check: (p,s) => (s.jackpotHits||0) >= 1 },
   { id: 'free_spins',     label: '⭐ Free Rider',       icon: '⭐', desc: 'Trigger Free Spins',             check: (p,s) => (s.freeSpinTriggers||0) >= 1 },
   { id: 'fortune_wheel',  label: '🔮 Oracle',           icon: '🔮', desc: 'Trigger Fortune Wheel',          check: (p,s) => (s.wheelSpins||0) >= 1 },
-  { id: 'crab_race',      label: '🦀 Crab Champ',       icon: '🦀', desc: 'Win a crab race',                check: (p,s) => (s.crabWins||0) >= 1 },
+  { id: 'paw_race',       label: '🐾 Paw Champ',        icon: '🐾', desc: 'Win a paw race',                 check: (p,s) => (s.pawWins||0) >= 1 },
   { id: 'millionaire',    label: '💎 Millionaire',      icon: '💎', desc: 'Accumulate 5000+ coins',         check: p => p.coins >= 5000 },
   { id: 'broke',          label: '😅 Gambler\'s Spirit',icon: '😅', desc: 'Go below 50 coins',              check: p => p.coins < 50 && p.totalSpins > 5 },
   { id: 'spin_50',        label: '🎡 Spinner',          icon: '🎡', desc: 'Complete 50 spins',              check: p => p.totalSpins >= 50 },
@@ -1580,7 +1581,7 @@ const ACHIEVEMENTS = [
   { id: 'vault_3',        label: '👑 Vault Lord',       icon: '👑', desc: 'Open the Dragon Vault 3 times',  check: p => (p.vaultOpens||0) >= 3 },
 ];
 
-let sessionStats = { catBonuses:0, fishBonuses:0, biggestWin:0, jackpotHits:0, freeSpinTriggers:0, wheelSpins:0, crabWins:0, dragonFives:0 };
+let sessionStats = { catBonuses:0, fishBonuses:0, biggestWin:0, jackpotHits:0, freeSpinTriggers:0, wheelSpins:0, pawWins:0, dragonFives:0 };
 
 // ===== INIT =====
 function init() {
@@ -2669,15 +2670,25 @@ function triggerHongbaoRain() {
   }, 6000);
 }
 
-// PAW RACE (formerly Crab Race)
+// PAW RACE
 function triggerCrabRace() {
   const bet = state.bet;
-  const crabNames = ['Orange Paws 🐾', 'Tuxedo Paws 🐾', 'Golden Paws 🐾'];
+  // Each race picks 3 random names from a pool of cat racers with personality
+  const namePool = [
+    'Chairman Meow 🎖️', 'Dumpling 🥟', 'Soy Sauce 🫙', 'Noodle 🍜',
+    'Whisker Wu 🥋', 'Boba 🧋', 'Futon 🛋️', 'Lucky Strike ⚡',
+    'Sir Flops-a-Lot 🎩', 'Midnight 🌙', 'Tangerine 🍊', 'Mochi 🍡',
+  ];
+  // Shuffle and pick 3
+  const shuffled = namePool.sort(() => Math.random() - 0.5);
+  const raceNames = shuffled.slice(0, 3);
   const yourCrabIdx = Math.floor(Math.random() * 3);
+  // Assign YOUR cat a special name
+  raceNames[yourCrabIdx] = '⭐ ' + raceNames[yourCrabIdx];
 
-  const lanesHTML = `<div id="crab-race-wrap">` + crabNames.map((name, i) => `
+  const lanesHTML = `<div id="crab-race-wrap">` + raceNames.map((name, i) => `
     <div class="crab-lane ${i === yourCrabIdx ? 'your-crab' : ''}">
-      <span class="crab-label">${i === yourCrabIdx ? '⭐ YOU' : 'CPU'}</span>
+      <span class="crab-label" style="width:auto;max-width:90px;font-size:0.65rem">${name}</span>
       <span class="crab-racer" id="crab-${i}">🐱</span>
       <div class="crab-track"><div class="crab-progress" id="crab-prog-${i}"></div></div>
     </div>
@@ -2730,7 +2741,7 @@ window.startCrabRace = function(yourCrabIdx, bet) {
 
       if (isWin) {
         p.coins += prize;
-        sessionStats.crabWins++;
+        sessionStats.pawWins = (sessionStats.pawWins || 0) + 1;
         soundBigWin();
         fireParticles(40, 'win');
       } else {
@@ -2739,8 +2750,8 @@ window.startCrabRace = function(yourCrabIdx, bet) {
 
       updatePlayerUI();
       document.getElementById('minigame-result').innerHTML = isWin
-        ? `<span style="color:#FFD700">🦀 YOUR CRAB WINS! +${prize} coins!</span>`
-        : `<span style="color:#FF4444">🦀 Better luck next time! CPU wins!</span>`;
+        ? `<span style="color:#FFD700">🐱 YOUR CAT WINS! +${fmt$(prize)}!</span>`
+        : `<span style="color:#FF4444">😿 Another cat pounced ahead! Better luck next time!</span>`;
       document.getElementById('mg-close-btn').style.display = 'inline-block';
       checkAchievements();
       saveState();
