@@ -1065,6 +1065,40 @@
     #achievements-panel { display: none; }
     #history-panel { display: none; }
   }
+
+  /* ===== VERSION FOOTER ===== */
+  #version-footer {
+    width: 100%;
+    max-width: 900px;
+    padding: 8px 16px 24px;
+    text-align: center;
+  }
+  #version-footer details {
+    display: inline-block;
+  }
+  #version-footer summary {
+    font-size: 0.62rem;
+    color: rgba(255,150,80,0.3);
+    letter-spacing: 1px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  #version-footer summary::-webkit-details-marker { display: none; }
+  #version-footer summary:hover { color: rgba(255,150,80,0.55); }
+  #changelog {
+    margin-top: 8px;
+    font-size: 0.65rem;
+    color: rgba(255,180,100,0.45);
+    line-height: 1.8;
+    text-align: left;
+    max-width: 600px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(100,40,0,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  #changelog b { color: rgba(255,200,100,0.65); }
 </style>
 </head>
 <body>
@@ -1206,6 +1240,21 @@
 <div id="history-panel">
   <h3>📜 Recent Spins</h3>
   <div id="history-list"></div>
+</div>
+
+<!-- VERSION FOOTER -->
+<div id="version-footer">
+  <details>
+    <summary>v1.5 · Lucky Paws Casino</summary>
+    <div id="changelog">
+      <b>v1.5</b> — Mobile layout fix (spin button always visible), Dragon Egg real variance, mini game combo trigger banners, hot streak/notification ghost fixes, bottom artifact removed, win frequency reduced<br>
+      <b>v1.4</b> — Remove multi-player profiles, single player with compact coins display<br>
+      <b>v1.3</b> — 5×4 reel grid, Dragon Vault grand feature, free spins manual press, crab race fix, larger mobile UI, Dragon Egg + Red Envelope Rain mini games, Ocean Frenzy rename, 12 paylines<br>
+      <b>v1.2</b> — Colored win-line overlay on canvas, free spin multiplier bug fix, Fish Frenzy frequency halved<br>
+      <b>v1.1</b> — Mobile optimization (iPhone Safari/Chrome), haptics, swipe-to-spin, PWA meta, Safari audio unlock fix, crab race layout fix<br>
+      <b>v1.0</b> — Initial release: slot machine with 3 player profiles, 6 mini games, particles, sounds, achievements
+    </div>
+  </details>
 </div>
 
 <script>
