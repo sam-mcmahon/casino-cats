@@ -1513,6 +1513,7 @@ function evaluateResult() {
   const bet = state.bet;
   let totalWin = 0;
   const winningCells = new Set();
+  const winningPaylines = [];
   const winDescriptions = [];
 
   // Check each payline
@@ -1523,16 +1524,19 @@ function evaluateResult() {
       totalWin += lineWin.amount;
       winDescriptions.push(lineWin.desc);
       line.forEach(([reel, row]) => winningCells.add(`${reel}-${row}`));
+      winningPaylines.push(line);
     }
   });
 
   // Check scatter (cats anywhere)
-  const catCount = reelSymbols.flat().filter(s => SYMBOLS[s].isScatter).length;
-  const blossomCount = reelSymbols.flat().filter(s => SYMBOLS[s].isScatter2).length;
-  const fortuneCount = reelSymbols.flat().filter(s => SYMBOLS[s].id === 'fortune').length;
-  const crabCount = reelSymbols.flat().filter(s => SYMBOLS[s].id === 'crab').length;
-  const fishCount = reelSymbols.flat().filter(s => SYMBOLS[s].id === 'clownfish').length;
-  const dragonCount = reelSymbols.flat().filter(s => SYMBOLS[s].id === 'dragon').length;
+  const flat = reelSymbols.flat();
+  const catCount     = flat.filter(s => SYMBOLS[s].isScatter).length;
+  const blossomCount = flat.filter(s => SYMBOLS[s].isScatter2).length;
+  const fortuneCount = flat.filter(s => SYMBOLS[s].id === 'fortune').length;
+  const crabCount    = flat.filter(s => SYMBOLS[s].id === 'crab').length;
+  const fishCount    = flat.filter(s => SYMBOLS[s].id === 'clownfish').length;
+  const dragonCount  = flat.filter(s => SYMBOLS[s].id === 'dragon').length;
+  const hongbaoCount = flat.filter(s => SYMBOLS[s].id === 'hongbao').length;
 
   // Scatter wins (cats)
   if (catCount >= 2) {
@@ -1545,12 +1549,13 @@ function evaluateResult() {
   const multiplier = streakMultiplier * (freeSpins >= 0 && freeSpinMultiplier > 1 ? freeSpinMultiplier : 1);
   if (multiplier > 1) totalWin = Math.floor(totalWin * multiplier);
 
-  // Highlight winning cells
+  // Highlight winning cells and draw paylines
   winningCells.forEach(key => {
     const [r, row] = key.split('-');
     const cell = document.getElementById(`cell-${r}-${row}`);
     if (cell) cell.classList.add('winning');
   });
+  drawWinLines(winningPaylines);
 
   // Apply win
   if (totalWin > 0) {
@@ -1611,10 +1616,12 @@ function evaluateResult() {
   let miniGameDelay = totalWin > 0 ? 1200 : 600;
 
   const miniGameQueue = [];
-  if (catCount >= 3) miniGameQueue.push(() => triggerCatShrine());
-  if (fishCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerFishFrenzy());
+  if (catCount >= 3)     miniGameQueue.push(() => triggerCatShrine());
+  if (dragonCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerDragonEgg());
+  if (hongbaoCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerHongbaoRain());
+  if (fishCount >= 4 && !miniGameQueue.length)    miniGameQueue.push(() => triggerFishFrenzy());
   if (fortuneCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerFortuneWheel());
-  if (crabCount >= 4 && !miniGameQueue.length) miniGameQueue.push(() => triggerCrabRace());
+  if (crabCount >= 4 && !miniGameQueue.length)    miniGameQueue.push(() => triggerCrabRace());
   if (blossomCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => {
     freeSpins += 10;
     freeSpinMultiplier = 2;
@@ -1940,6 +1947,134 @@ window.spinFortuneWheel = function(bet) {
   }, 4200);
 };
 
+// DRAGON EGG
+function triggerDragonEgg() {
+  const bet = state.bet;
+  const prizes = [5, 8, 10, 15, 20, 25, 30, 40, 50].sort(() => Math.random() - 0.5).slice(0, 3);
+  const eggColors = ['#E74C3C', '#9B59B6', '#F1C40F'];
+  const dragons = ['🐉', '🦕', '🐲'];
+
+  const eggs = [0, 1, 2].map(i => `
+    <button class="mg-btn" id="egg-btn-${i}" onclick="pickEgg(${i})"
+      style="font-size:2.8rem; width:90px; height:90px;
+             box-shadow: 0 0 20px ${eggColors[i]}88;
+             border-color: ${eggColors[i]};">
+      🥚
+    </button>
+  `).join('');
+
+  openMiniGame('🐉 DRAGON EGG!', 'Pick an egg — one holds the legendary dragon!', eggs, null);
+
+  window._eggPrizes = prizes;
+  window._eggDragons = dragons;
+  window._eggBet = bet;
+}
+
+window.pickEgg = function(idx) {
+  const prizes = window._eggPrizes;
+  const dragons = window._eggDragons;
+  const bet = window._eggBet;
+  const p = state.players[state.currentPlayer];
+
+  [0, 1, 2].forEach(i => {
+    const btn = document.getElementById('egg-btn-' + i);
+    if (!btn) return;
+    btn.disabled = true;
+    btn.style.transition = 'all 0.4s';
+    setTimeout(() => {
+      btn.textContent = dragons[i];
+      btn.style.transform = 'scale(1.2)';
+      btn.style.boxShadow = i === idx ? '0 0 30px gold' : 'none';
+    }, i * 150);
+  });
+
+  const prize = prizes[idx] * bet;
+  p.coins += prize;
+  updatePlayerUI(state.currentPlayer);
+  soundBigWin();
+  haptic('heavy');
+  fireParticles(45, 'jackpot');
+
+  setTimeout(() => {
+    document.getElementById('minigame-result').innerHTML =
+      `<span style="color:#FFD700">🐉 ${dragons[idx]} HATCHED! Won <b>${prize.toLocaleString()}</b> coins! (${prizes[idx]}× bet!)</span>`;
+    document.getElementById('mg-close-btn').style.display = 'inline-block';
+  }, 600);
+  saveState();
+};
+
+// RED ENVELOPE RAIN
+function triggerHongbaoRain() {
+  const bet = state.bet;
+  openMiniGame('🧧 RED ENVELOPE RAIN!', 'Tap the envelopes before they float away! (6 seconds)', '<div id="envelope-field" style="position:relative;width:100%;height:220px;overflow:hidden;background:linear-gradient(180deg,#1a0000,#3a0000);border-radius:12px;border:2px solid #660000;"></div>', null);
+
+  const field = document.getElementById('envelope-field');
+  let caught = 0, earned = 0;
+  const emojis = ['🧧','🎁','💌','🎀'];
+
+  function spawnEnvelope() {
+    const el = document.createElement('div');
+    const val = (Math.floor(Math.random() * 9) + 2) * bet;
+    const startX = 10 + Math.random() * 80; // percent
+    const duration = 2.5 + Math.random() * 2;
+    el.style.cssText = `
+      position:absolute; font-size:2rem; cursor:pointer;
+      left:${startX}%; top:-40px; user-select:none;
+      animation: envFloat ${duration}s linear forwards;
+      transition: transform 0.1s;
+    `;
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    function grab(e) {
+      e.preventDefault();
+      if (el.dataset.caught) return;
+      el.dataset.caught = '1';
+      el.style.animation = 'none';
+      el.style.transform = 'scale(2)';
+      el.style.opacity = '0';
+      caught++;
+      earned += val;
+      soundCoin();
+      haptic('light');
+      const p = state.players[state.currentPlayer];
+      p.coins += val;
+      updatePlayerUI(state.currentPlayer);
+      const lbl = document.createElement('div');
+      lbl.style.cssText = `position:absolute;color:#FFD700;font-weight:700;font-size:0.9rem;pointer-events:none;left:${el.style.left};top:${el.style.top};animation:fishCaught 0.7s ease forwards`;
+      lbl.textContent = '+' + val;
+      field.appendChild(lbl);
+      setTimeout(() => { el.remove(); lbl.remove(); }, 700);
+    }
+    el.addEventListener('click', grab);
+    el.addEventListener('touchstart', grab, { passive: false });
+
+    field.appendChild(el);
+    setTimeout(() => { if (field.contains(el)) el.remove(); }, duration * 1000 + 200);
+  }
+
+  // Inject keyframe if not present
+  if (!document.getElementById('envFloatKF')) {
+    const s = document.createElement('style');
+    s.id = 'envFloatKF';
+    s.textContent = '@keyframes envFloat { from{transform:translateY(0) rotate(-10deg)} to{transform:translateY(280px) rotate(10deg)} }';
+    document.head.appendChild(s);
+  }
+
+  let spawned = 0;
+  const spawnTimer = setInterval(() => {
+    spawnEnvelope();
+    if (++spawned >= 18) clearInterval(spawnTimer);
+  }, 350);
+
+  setTimeout(() => {
+    clearInterval(spawnTimer);
+    document.getElementById('minigame-result').innerHTML =
+      `<span style="color:#FFD700">🧧 Caught ${caught} envelopes! Won <b>${earned.toLocaleString()}</b> coins!</span>`;
+    document.getElementById('mg-close-btn').style.display = 'inline-block';
+    saveState();
+  }, 6000);
+}
+
 // CRAB RACE
 function triggerCrabRace() {
   const bet = state.bet;
@@ -2089,6 +2224,71 @@ function clearWinDisplay() {
 
 function clearCellHighlights() {
   document.querySelectorAll('.reel-cell').forEach(c => c.classList.remove('winning'));
+  const canvas = document.getElementById('win-line-overlay');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawWinLines(winningPaylines) {
+  const canvas = document.getElementById('win-line-overlay');
+  const container = document.getElementById('reels-container');
+  canvas.width = container.offsetWidth;
+  canvas.height = container.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!winningPaylines.length) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const lineColors = ['#FFD700','#FF4444','#00FF88','#00BFFF','#FF69B4','#FF8C00','#9B59B6','#FFF176','#7FFFD4'];
+
+  winningPaylines.forEach((line, idx) => {
+    const color = lineColors[idx % lineColors.length];
+    const points = line.map(([reelIdx, rowIdx]) => {
+      const reelEl = document.getElementById('reel-' + reelIdx);
+      const r = reelEl.getBoundingClientRect();
+      const cellH = r.height / 3;
+      return {
+        x: r.left - containerRect.left + r.width / 2,
+        y: r.top  - containerRect.top  + rowIdx * cellH + cellH / 2,
+      };
+    });
+
+    // Glow pass
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 16;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+    ctx.restore();
+
+    // Solid line pass
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.globalAlpha = 0.92;
+    ctx.beginPath();
+    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+
+    // Dots at each cell
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 8;
+    points.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  });
 }
 
 function showBigWin(amount, label) {
