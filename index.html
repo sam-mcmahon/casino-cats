@@ -1113,6 +1113,7 @@
 // ===== AUDIO ENGINE =====
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
+let audioUnlocked = false;
 let soundEnabled = true;
 
 function getAudio() {
@@ -1120,6 +1121,23 @@ function getAudio() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+
+// Safari requires a silent sound played inside a real touch/click gesture
+// to unlock Web Audio for all future async calls.
+function unlockAudio() {
+  if (audioUnlocked) return;
+  try {
+    const ctx = getAudio();
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+    ctx.resume().then(() => { audioUnlocked = true; });
+  } catch(e) {}
+}
+document.addEventListener('touchstart', unlockAudio, { once: false, passive: true });
+document.addEventListener('click', unlockAudio, { once: false, passive: true });
 
 function playTone(freq, duration, type='sine', gain=0.3, delay=0) {
   if (!soundEnabled) return;
@@ -1700,6 +1718,7 @@ function openMiniGame(title, subtitle, contentHTML, onClose) {
 }
 
 function closeMiniGame() {
+  stopCrabRace(); // safe no-op if no race running
   document.getElementById('minigame-overlay').classList.remove('active');
   if (window._mgOnClose) window._mgOnClose();
   window._mgOnClose = null;
@@ -1943,6 +1962,13 @@ function triggerCrabRace() {
 }
 
 let crabRaceRunning = false;
+let crabRaceInterval = null;
+
+function stopCrabRace() {
+  if (crabRaceInterval) { clearInterval(crabRaceInterval); crabRaceInterval = null; }
+  crabRaceRunning = false;
+}
+
 window.startCrabRace = function(yourCrabIdx, bet) {
   if (crabRaceRunning) return;
   crabRaceRunning = true;
@@ -1950,10 +1976,14 @@ window.startCrabRace = function(yourCrabIdx, bet) {
 
   const positions = [0, 0, 0];
   const speeds = [Math.random() * 1.5 + 0.5, Math.random() * 1.5 + 0.5, Math.random() * 1.5 + 0.5];
-  // Give player's crab a slight boost for fun
   speeds[yourCrabIdx] *= 1.1;
 
-  const raceInterval = setInterval(() => {
+  crabRaceInterval = setInterval(() => {
+    // Guard: if overlay closed, kill interval
+    if (!document.getElementById('minigame-overlay').classList.contains('active')) {
+      stopCrabRace();
+      return;
+    }
     for (let i = 0; i < 3; i++) {
       positions[i] = Math.min(100, positions[i] + speeds[i] * (0.5 + Math.random() * 1.5));
       const prog = document.getElementById('crab-prog-' + i);
@@ -1963,8 +1993,7 @@ window.startCrabRace = function(yourCrabIdx, bet) {
     // Check winner
     const winner = positions.indexOf(Math.max(...positions));
     if (Math.max(...positions) >= 100) {
-      clearInterval(raceInterval);
-      crabRaceRunning = false;
+      stopCrabRace();
 
       const p = state.players[state.currentPlayer];
       const isWin = winner === yourCrabIdx;
