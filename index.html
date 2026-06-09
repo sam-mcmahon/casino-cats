@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucky Paws">
+<meta name="theme-color" content="#0d0202">
 <title>🐱 Lucky Paws Casino 🎰</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
@@ -19,7 +23,7 @@
     --text: #FFE0A0;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   body {
     background: var(--darker);
@@ -29,11 +33,22 @@
       url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23660000' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     font-family: 'Noto Sans SC', Arial, sans-serif;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow-x: hidden;
     color: var(--text);
+    /* iOS safe areas */
+    padding-bottom: env(safe-area-inset-bottom);
+    touch-action: pan-y;
+    overscroll-behavior: none;
+  }
+
+  button, .player-btn {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   /* ===== HEADER ===== */
@@ -41,12 +56,12 @@
     width: 100%;
     max-width: 900px;
     text-align: center;
-    padding: 12px 16px 4px;
+    padding: max(12px, env(safe-area-inset-top)) 16px 4px;
     position: relative;
   }
 
   #logo {
-    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-size: clamp(1.4rem, 6vw, 3rem);
     font-weight: 900;
     background: linear-gradient(135deg, #FFD700 0%, #FF8C00 40%, #FFD700 70%, #FFF176 100%);
     -webkit-background-clip: text;
@@ -68,11 +83,11 @@
   /* ===== PLAYERS ===== */
   #players-bar {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
     width: 100%;
     max-width: 900px;
-    padding: 10px 16px;
+    padding: 6px 12px;
   }
 
   .player-btn {
@@ -81,12 +96,14 @@
     background: var(--panel);
     border: 2px solid #660000;
     border-radius: 12px;
-    padding: 8px 12px;
+    padding: 6px 8px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
     position: relative;
     overflow: hidden;
+    /* bigger touch target */
+    min-height: 72px;
   }
 
   .player-btn::before {
@@ -103,23 +120,23 @@
 
   .player-btn:hover:not(.active) { border-color: #AA4400; }
 
-  .player-name { font-weight: 700; font-size: 0.95rem; color: var(--gold); }
-  .player-avatar { font-size: 1.8rem; display: block; }
+  .player-name { font-weight: 700; font-size: clamp(0.75rem, 3.5vw, 0.95rem); color: var(--gold); }
+  .player-avatar { font-size: clamp(1.4rem, 5vw, 1.8rem); display: block; }
   .player-coins {
-    font-size: 0.85rem; color: #FFB84D;
+    font-size: clamp(0.7rem, 3vw, 0.85rem); color: #FFB84D;
     background: rgba(0,0,0,0.3);
     border-radius: 6px;
-    padding: 2px 6px;
-    margin-top: 3px;
+    padding: 2px 4px;
+    margin-top: 2px;
     display: inline-block;
   }
-  .player-streak { font-size: 0.7rem; color: #FF6644; margin-top: 2px; min-height: 14px; }
+  .player-streak { font-size: 0.65rem; color: #FF6644; margin-top: 1px; min-height: 12px; }
 
   /* ===== JACKPOT ===== */
   #jackpot-bar {
     width: 100%;
     max-width: 900px;
-    padding: 6px 16px;
+    padding: 4px 12px;
     text-align: center;
   }
 
@@ -127,10 +144,10 @@
     background: linear-gradient(90deg, #2a0000, #5a1000, #2a0000);
     border: 2px solid var(--gold2);
     border-radius: 10px;
-    padding: 8px 20px;
+    padding: 5px 16px;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     box-shadow: 0 0 15px rgba(255,120,0,0.3), inset 0 0 20px rgba(180,0,0,0.3);
     animation: jackpotPulse 4s ease-in-out infinite;
   }
@@ -140,9 +157,9 @@
     50%       { box-shadow: 0 0 30px rgba(255,200,0,0.5), inset 0 0 20px rgba(180,0,0,0.3); }
   }
 
-  #jackpot-label { font-size: 0.75rem; color: #FF9944; letter-spacing: 3px; text-transform: uppercase; }
+  #jackpot-label { font-size: 0.7rem; color: #FF9944; letter-spacing: 2px; text-transform: uppercase; }
   #jackpot-amount {
-    font-size: 1.6rem; font-weight: 900;
+    font-size: clamp(1.2rem, 5vw, 1.6rem); font-weight: 900;
     background: linear-gradient(90deg, #FFD700, #FF8C00, #FFD700);
     background-size: 200%;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
@@ -155,15 +172,15 @@
   #machine {
     width: 100%;
     max-width: 900px;
-    padding: 0 16px;
+    padding: 0 10px;
     perspective: 1000px;
   }
 
   #machine-frame {
     background: linear-gradient(180deg, #3a0000 0%, #200000 100%);
     border: 3px solid var(--gold2);
-    border-radius: 20px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 10px;
     box-shadow:
       0 0 40px rgba(255,100,0,0.3),
       inset 0 0 40px rgba(0,0,0,0.5),
@@ -185,14 +202,14 @@
   /* ===== REELS ===== */
   #reels-container {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     background: #0a0000;
     border: 3px solid #440000;
     border-radius: 12px;
-    padding: 10px;
+    padding: 6px;
     position: relative;
     overflow: hidden;
-    margin-top: 20px;
+    margin-top: 16px;
   }
 
   #reels-container::before {
@@ -226,7 +243,7 @@
   .reel {
     flex: 1;
     min-width: 0;
-    height: 260px;
+    height: min(260px, 32vw);
     overflow: hidden;
     border-radius: 8px;
     position: relative;
@@ -242,11 +259,11 @@
   }
 
   .reel-cell {
-    height: 80px;
+    height: min(80px, 10.5vw);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-size: clamp(1.3rem, 6vw, 2.8rem);
     position: relative;
     border-bottom: 1px solid rgba(100,0,0,0.3);
     transition: background 0.2s;
@@ -334,12 +351,11 @@
 
   /* ===== CONTROLS ===== */
   #controls {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 4px 4px;
-    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 4px 4px;
   }
 
   .bet-group {
@@ -347,12 +363,10 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    flex: 1;
-    min-width: 100px;
   }
 
   .control-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: rgba(255,180,100,0.7);
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -360,7 +374,7 @@
 
   .bet-buttons {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -372,23 +386,27 @@
     color: #FFB84D;
     font-size: 0.75rem;
     font-weight: 700;
+    /* 44px minimum touch target */
+    min-height: 36px;
+    min-width: 36px;
     padding: 4px 8px;
     cursor: pointer;
     transition: all 0.15s;
   }
 
-  .bet-btn:hover { background: rgba(120,30,0,0.8); border-color: #AA4400; }
+  .bet-btn:active { transform: scale(0.95); }
   .bet-btn.active { background: rgba(180,60,0,0.8); border-color: var(--gold); color: var(--gold); }
 
   #spin-btn {
-    background: linear-gradient(135deg, #CC2200 0%, #FF4400 40%, #CC2200 100%);
-    border: 3px solid var(--gold);
+    background: radial-gradient(circle at 35% 35%, #FF6600, #CC2200 60%, #990000);
+    border: 4px solid var(--gold);
     border-radius: 50%;
-    width: 90px; height: 90px;
-    font-size: 2rem;
+    width: min(100px, 22vw);
+    height: min(100px, 22vw);
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
     cursor: pointer;
-    transition: all 0.15s;
-    box-shadow: 0 0 20px rgba(255,100,0,0.5), 0 4px 0 #770000, inset 0 -4px 0 rgba(0,0,0,0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 0 25px rgba(255,100,0,0.6), 0 5px 0 #770000, inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,180,0,0.3);
     position: relative;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
@@ -396,26 +414,19 @@
     gap: 0;
   }
 
-  #spin-btn:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(255,150,0,0.7), 0 4px 0 #770000, inset 0 -4px 0 rgba(0,0,0,0.3);
-  }
-
   #spin-btn:active:not(:disabled) {
-    transform: scale(0.97) translateY(2px);
+    transform: scale(0.93) translateY(3px);
     box-shadow: 0 0 15px rgba(255,100,0,0.4), 0 2px 0 #770000, inset 0 -2px 0 rgba(0,0,0,0.3);
   }
 
-  #spin-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); }
-  #spin-btn-label { font-size: 0.55rem; letter-spacing: 2px; color: rgba(255,230,180,0.9); font-weight: 700; }
+  #spin-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
+  #spin-btn-label { font-size: clamp(0.45rem, 1.5vw, 0.55rem); letter-spacing: 2px; color: rgba(255,230,180,0.9); font-weight: 700; }
 
   .right-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 100px;
+    gap: 4px;
   }
 
   .icon-btn {
@@ -423,16 +434,18 @@
     border: 1px solid #550000;
     border-radius: 8px;
     color: #FFB84D;
-    font-size: 0.75rem;
-    padding: 5px 10px;
+    font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+    /* 44px touch target */
+    min-height: 34px;
+    padding: 4px 8px;
     cursor: pointer;
     transition: all 0.15s;
-    display: flex; align-items: center; gap: 5px;
+    display: flex; align-items: center; gap: 4px;
     width: 100%;
     justify-content: center;
   }
 
-  .icon-btn:hover { background: rgba(80,20,0,0.8); border-color: #AA4400; }
+  .icon-btn:active { transform: scale(0.96); background: rgba(80,20,0,0.8); }
   .icon-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(100,40,0,0.8); }
 
   /* ===== PAYTABLE ===== */
@@ -901,13 +914,48 @@
   ::-webkit-scrollbar-track { background: var(--darker); }
   ::-webkit-scrollbar-thumb { background: #440000; border-radius: 3px; }
 
-  /* ===== MOBILE ADJUSTMENTS ===== */
-  @media (max-width: 500px) {
-    #controls { justify-content: center; }
-    .bet-group, .right-controls { min-width: 80px; }
-    #spin-btn { width: 75px; height: 75px; font-size: 1.6rem; }
-    .reel-cell { height: 70px; }
-    .reel { height: 225px; }
+  /* ===== NOTIFICATION — slide down from top on mobile ===== */
+  @media (max-width: 480px) {
+    #notification {
+      top: auto;
+      bottom: max(80px, env(safe-area-inset-bottom, 20px) + 70px);
+      right: 50%;
+      transform: translateX(50%) translateY(120px);
+      max-width: 90vw;
+    }
+    #notification.show { transform: translateX(50%) translateY(0); }
+  }
+
+  /* ===== MINI GAME BOX — full mobile ===== */
+  @media (max-width: 480px) {
+    #minigame-box {
+      padding: 20px 16px;
+      max-height: 90dvh;
+      overflow-y: auto;
+    }
+    #minigame-title { font-size: 1.4rem; }
+    .mg-btn { width: 65px; height: 65px; font-size: 2rem; }
+    #fish-pond { height: 180px; }
+  }
+
+  /* ===== INFO / ACHIEVEMENTS — compact on mobile ===== */
+  @media (max-width: 480px) {
+    #info-panel { padding: 6px 10px; gap: 6px; }
+    .info-card { min-width: 140px; padding: 8px; }
+    #achievements-panel { padding: 4px 10px 8px; }
+    #history-panel { padding: 4px 10px 8px; }
+    #logo { font-size: clamp(1.1rem, 5.5vw, 1.8rem); letter-spacing: 0; }
+    #subtitle { font-size: 0.65rem; letter-spacing: 2px; }
+    #jackpot-display { padding: 4px 12px; }
+  }
+
+  /* ===== SWIPE HINT ===== */
+  #swipe-hint {
+    text-align: center;
+    font-size: 0.65rem;
+    color: rgba(255,180,100,0.4);
+    padding: 2px 0 4px;
+    letter-spacing: 1px;
   }
 </style>
 </head>
@@ -1015,6 +1063,7 @@
         <span id="spin-btn-label">SPIN</span>
       </button>
 
+
       <div class="right-controls">
         <button class="icon-btn" id="auto-btn" onclick="toggleAuto()">🔄 AUTO SPIN</button>
         <button class="icon-btn" onclick="maxBet()">💥 MAX BET</button>
@@ -1024,6 +1073,8 @@
     </div>
   </div>
 </div>
+
+<div id="swipe-hint">⬇ swipe down to spin ⬇</div>
 
 <!-- INFO PANELS -->
 <div id="info-panel">
@@ -1381,6 +1432,7 @@ function spin() {
 
   // Init audio on first interaction
   getAudio();
+  haptic('medium');
 
   isSpinning = true;
   document.getElementById('spin-btn').disabled = true;
@@ -1428,6 +1480,7 @@ function spin() {
       reelSymbols[r] = finalResult[r];
       renderReel(r);
       soundReelStop(r);
+      haptic('light');
 
       if (r === 4) {
         // All reels stopped
@@ -1499,18 +1552,22 @@ function evaluateResult() {
 
     if (totalWin >= bet * 50) {
       soundJackpot();
+      haptic('jackpot');
       showBigWin(totalWin, totalWin >= bet * 100 ? 'MEGA WIN!!!' : totalWin >= bet * 50 ? 'BIG WIN!' : 'SUPER WIN!');
       p.bigWins++;
       fireParticles(80, 'jackpot');
     } else if (totalWin >= bet * 20) {
       soundBigWin();
+      haptic('heavy');
       showBigWin(totalWin, 'BIG WIN!');
       fireParticles(50, 'big');
     } else if (totalWin >= bet * 5) {
       soundSmallWin(totalWin);
+      haptic('win');
       fireParticles(20, 'win');
     } else {
       soundSmallWin(totalWin);
+      haptic('light');
     }
   } else {
     p.consecutiveWins = 0;
@@ -1715,12 +1772,13 @@ function triggerFishFrenzy() {
     fish.style.left = (-50 + Math.random() * 20) + 'px';
     fish.style.animationDuration = (2 + Math.random() * 3) + 's';
 
-    fish.onclick = function() {
+    function catchFish() {
       if (fish.classList.contains('caught')) return;
       fish.classList.add('caught');
       caught++;
       fishEarned += value;
       soundCoin();
+      haptic('light');
       const p = state.players[state.currentPlayer];
       p.coins += value;
       updatePlayerUI(state.currentPlayer);
@@ -1729,7 +1787,10 @@ function triggerFishFrenzy() {
       label.textContent = '+' + value;
       pond.appendChild(label);
       setTimeout(() => label.remove(), 800);
-    };
+    }
+
+    fish.onclick = catchFish;
+    fish.addEventListener('touchstart', e => { e.preventDefault(); catchFish(); }, { passive: false });
 
     pond.appendChild(fish);
     setTimeout(() => { if (pond.contains(fish)) fish.remove(); }, 5000);
@@ -2152,6 +2213,33 @@ function addCoins() {
   saveState();
 }
 
+// ===== HAPTIC FEEDBACK =====
+function haptic(style = 'light') {
+  if (!navigator.vibrate) return;
+  const patterns = { light: 20, medium: [30, 10, 30], heavy: [50, 20, 50, 20, 80], win: [20,10,20,10,40], jackpot: [100,30,100,30,200] };
+  navigator.vibrate(patterns[style] || patterns.light);
+}
+
+// ===== SWIPE-TO-SPIN =====
+let touchStartY = 0;
+let touchStartX = 0;
+document.addEventListener('touchstart', e => {
+  // Don't intercept taps on buttons/overlays
+  if (e.target.closest('button, .player-btn, #minigame-overlay, #bigwin-overlay')) return;
+  touchStartY = e.touches[0].clientY;
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (e.target.closest('button, .player-btn, #minigame-overlay, #bigwin-overlay')) return;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  // Swipe down to spin
+  if (dy > 60 && Math.abs(dx) < 60 && !isSpinning) {
+    spin();
+  }
+}, { passive: true });
+
 // Keyboard shortcut
 document.addEventListener('keydown', e => {
   if (e.code === 'Space' && !isSpinning) { e.preventDefault(); spin(); }
@@ -2166,8 +2254,20 @@ setInterval(() => {
   updateJackpotDisplay();
 }, 2000);
 
+// iOS "Add to Home Screen" nudge (shows once, first visit)
+function showAddToHomeHint() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  const shown = sessionStorage.getItem('a2hs_shown');
+  if (isIOS && !isStandalone && !shown) {
+    sessionStorage.setItem('a2hs_shown', '1');
+    setTimeout(() => showNotification('📲', 'Tap Share → Add to Home Screen for the full app experience!'), 3000);
+  }
+}
+
 // Init!
 init();
+showAddToHomeHint();
 </script>
 </body>
 </html>
