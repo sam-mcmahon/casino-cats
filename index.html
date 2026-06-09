@@ -940,6 +940,67 @@
 
   .crab-label { font-size: 0.8rem; font-weight: 700; color: var(--label); width: 58px; text-align: center; flex-shrink: 0; }
 
+  /* ===== PAW LOCK FREE SPINS ===== */
+  .reel-cell.paw-locked {
+    background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,120,0,0.2)) !important;
+    border: 2px solid #FFD700 !important;
+    box-shadow: 0 0 16px rgba(255,215,0,0.6), inset 0 0 10px rgba(255,180,0,0.15) !important;
+    position: relative;
+  }
+  .reel-cell.paw-locked::after {
+    content: '🔒';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    opacity: 0.85;
+  }
+  .paw-lock-bar {
+    display: none;
+    text-align: center;
+    padding: 9px 12px;
+    margin-top: 8px;
+    background: linear-gradient(90deg, #1a0a00, #4a2000, #1a0a00);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    color: var(--gold);
+    font-size: clamp(0.85rem, 3.4vw, 1rem);
+    font-weight: 900;
+    letter-spacing: 1px;
+    animation: pawLockPulse 0.7s ease-in-out infinite alternate;
+    margin-bottom: 6px;
+    box-shadow: 0 0 12px rgba(255,200,0,0.3);
+  }
+  @keyframes pawLockPulse {
+    from { box-shadow: 0 0 8px rgba(255,180,0,0.3); }
+    to   { box-shadow: 0 0 22px rgba(255,180,0,0.7), inset 0 0 10px rgba(255,120,0,0.1); }
+  }
+
+  /* ===== NEKO TOWER ===== */
+  .tower-floor {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
+    opacity: 0.3;
+    transition: all 0.3s;
+  }
+  .tower-floor.active { opacity: 1; }
+  .tower-floor.cleared { opacity: 0.5; }
+  .tower-floor-label {
+    font-size: 0.7rem;
+    color: #FF9944;
+    width: 40px;
+    text-align: right;
+    line-height: 60px;
+    flex-shrink: 0;
+  }
+
+  /* ===== COIN FLIP ===== */
+  .flip-history { display: flex; gap: 6px; justify-content: center; margin: 8px 0; flex-wrap: wrap; }
+  .flip-result { font-size: 1.4rem; animation: popIn 0.3s ease; }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
   /* ===== NOTIFICATION ===== */
   #notification {
     position: fixed;
@@ -1399,6 +1460,7 @@ body::after {
 <div id="machine">
   <div id="machine-frame">
     <div id="free-spins-bar">⭐ FREE SPINS ×2 — <span id="free-spins-count">0</span> REMAINING ⭐</div>
+    <div id="paw-lock-bar" class="paw-lock-bar">🔒 PAW LOCK — <span id="paw-lock-count">0</span> SPINS · <span id="paw-lock-locked">0</span>/5 LOCKED 🐾</div>
     <div id="multiplier-display"></div>
 
     <!-- REELS -->
@@ -1495,8 +1557,9 @@ body::after {
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v2.0 · Lucky Paws Casino</summary>
-    <div id="changelog">
+    <summary>v2.1 · Lucky Paws Casino</summary>
+    <div id=”changelog”>
+      <b>v2.1</b> — PAW LOCK free spins (🌸×3: reels lock when 🐱/🐾 land, each lock resets to 3 spins, big payout on finish), Neko Tower mini game (🏮×3: climb 5 floors picking lucky cats, cash out anytime), Lucky Coin Flip (🔔/🪙×3: double-or-nothing escalator up to 6 levels, cash out anytime), win highlights show exact run only, bet buttons show true spin cost<br>
       <b>v2.0</b> — Full visual reskin: new “Neon Gold” identity (midnight plum, gold × magenta, cyan accents), Audiowide + Chakra Petch type, marquee frame lights, living background, breathing spin button, big-win light rays, themed win lines &amp; particles, bet buttons now show true cost per spin, subtitle removed<br>
       <b>v1.9.1</b> — Paw Race: cat racers now have fun names (Chairman Meow, Dumpling, Soy Sauce…), removed CPU/crab references, result messages updated, achievement renamed to Paw Champ<br>
       <b>v1.9</b> — Win lines crisp on retina (DPR-scaled canvas), win description shows wild involvement (🐙+🔮×3), total bet display (bet×lines), persistent last-win amount in balance bar<br>
@@ -1770,6 +1833,11 @@ let stampedeActive = false;
 let stampedeMult = 1;
 let stampedeWildReels = new Set();
 
+// ===== PAW LOCK FREE SPINS STATE =====
+let pawLockActive = false;
+let pawLockedReels = new Set(); // reel indices that are locked
+let pawLockSpinsLeft = 0;
+
 // ===== ACHIEVEMENTS =====
 const ACHIEVEMENTS = [
   { id: 'first_spin',     label: '🌟 First Spin',       icon: '🎰', desc: 'Spin for the first time',        check: p => p.totalSpins >= 1 },
@@ -1904,7 +1972,7 @@ function spin() {
 
   if (freeSpins > 0) {
     lastSpinWasFree = true;
-    freeSpins--;
+    if (!pawLockActive) freeSpins--; // Paw Lock manages its own counter in checkPawLocks
     updateFreeSpinsBar();
   } else {
     lastSpinWasFree = false;
@@ -1923,15 +1991,23 @@ function spin() {
   const spinDurations = [800, 1000, 1200, 1400, 1600];
   const tempSymbols = reelSymbols.map(r => [...r]);
 
-  // Determine final result
+  // Determine final result (locked reels keep their symbols during Paw Lock)
   const finalResult = [];
   for (let r = 0; r < 5; r++) {
-    finalResult.push(randomReel());
+    finalResult.push(pawLockActive && pawLockedReels.has(r) ? [...reelSymbols[r]] : randomReel());
   }
 
-  // Rapid cycling animation
+  // Rapid cycling animation (skip locked reels)
   const cycleIntervals = [];
   for (let r = 0; r < 5; r++) {
+    if (pawLockActive && pawLockedReels.has(r)) {
+      // Keep lock styling visible
+      for (let row = 0; row < NUM_ROWS; row++) {
+        const cell = document.getElementById(`cell-${r}-${row}`);
+        if (cell) cell.classList.add('paw-locked');
+      }
+      continue;
+    }
     cycleIntervals[r] = setInterval(() => {
       for (let row = 0; row < NUM_ROWS; row++) {
         const cell = document.getElementById(`cell-${r}-${row}`);
@@ -1944,9 +2020,16 @@ function spin() {
   // Stop reels one by one
   for (let r = 0; r < 5; r++) {
     setTimeout(() => {
-      clearInterval(cycleIntervals[r]);
+      if (cycleIntervals[r]) clearInterval(cycleIntervals[r]);
       reelSymbols[r] = finalResult[r];
       renderReel(r);
+      // Re-apply lock styling on locked reels
+      if (pawLockActive && pawLockedReels.has(r)) {
+        for (let row = 0; row < NUM_ROWS; row++) {
+          const cell = document.getElementById(`cell-${r}-${row}`);
+          if (cell) cell.classList.add('paw-locked');
+        }
+      }
       soundReelStop(r);
       haptic('light');
 
@@ -1954,7 +2037,7 @@ function spin() {
         // All reels stopped
         setTimeout(() => evaluateResult(), 200);
       }
-    }, spinDurations[r]);
+    }, pawLockActive && pawLockedReels.has(r) ? 200 + r * 100 : spinDurations[r]);
   }
 }
 
@@ -2017,6 +2100,9 @@ function evaluateResult() {
   const fishOnLine    = maxOnLine('clownfish');
   const pawOnLine     = maxOnLine('paw');
   const nekoOnLine    = maxOnLine('neko');
+  const lanternOnLine = maxOnLine('lantern');
+  const bellOnLine    = maxOnLine('bell');
+  const coinOnLine    = maxOnLine('coin');
 
   // Keep flat counts for stat tracking only
   const dragonCount  = flat.filter(s => SYMBOLS[s].id === 'dragon').length;
@@ -2125,35 +2211,31 @@ function evaluateResult() {
   let triggerFn = null;
   let triggerLabel = null;
 
-  if (catCount >= 3)             { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
-  else if (nekoOnLine >= 3)     { triggerFn = () => triggerDragonEgg();    triggerLabel = `😸×${nekoOnLine} HAPPY NEKOS!`; }
-  else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
-  else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
-  else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
-  else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
-  else if (pawOnLine >= 3)      { triggerFn = () => triggerCrabRace();     triggerLabel = `🐾×${pawOnLine} LUCKY PAWS!`; }
-  else if (blossomCount >= 4)   {
-    triggerLabel = `🌸×${blossomCount} BLOSSOM!`;
-    triggerFn = () => {
-      // First trigger grants fewer spins; retriggers stack only a little
-      const award = freeSpins > 0 ? 4 : 8;
-      freeSpins = Math.min(freeSpins + award, 20);
-      freeSpinMultiplier = 2;
-      updateFreeSpinsBar();
-      soundFreeSpins();
-      haptic('heavy');
-      sessionStats.freeSpinTriggers++;
-      showNotification('⭐', `+${award} FREE SPINS! Press the green SPIN.`);
-      fireParticles(40, 'free');
-      finishSpin();
-    };
-  }
+  // During Paw Lock, only check for new reel locks — no other mini games
+  if (pawLockActive) {
+    checkPawLocks();
+  } else {
+    if (catCount >= 3)             { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
+    else if (nekoOnLine >= 3)     { triggerFn = () => triggerDragonEgg();    triggerLabel = `😸×${nekoOnLine} HAPPY NEKOS!`; }
+    else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
+    else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
+    else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
+    else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
+    else if (pawOnLine >= 3)      { triggerFn = () => triggerCrabRace();     triggerLabel = `🐾×${pawOnLine} LUCKY PAWS!`; }
+    else if (lanternOnLine >= 3)  { triggerFn = () => triggerNekoTower();    triggerLabel = `🏮×${lanternOnLine} NEKO TOWER!`; }
+    else if (bellOnLine >= 3)     { triggerFn = () => triggerCoinFlip();     triggerLabel = `🔔×${bellOnLine} LUCKY BELLS!`; }
+    else if (coinOnLine >= 3)     { triggerFn = () => triggerCoinFlip();     triggerLabel = `🪙×${coinOnLine} COIN FRENZY!`; }
+    else if (blossomCount >= 3)   {
+      triggerLabel = `🌸×${blossomCount} PAW LOCK!`;
+      triggerFn = () => activatePawLock();
+    }
 
-  // Moon scatter: 3+ moons anywhere trigger Dragon Stampede
-  const moonCount = flat.filter(s => SYMBOLS[s].id === 'moon').length;
-  if (moonCount >= 3 && !triggerFn) {
-    triggerFn = () => activateStampede();
-    triggerLabel = `🌙×${moonCount} DRAGON STAMPEDE!`;
+    // Moon scatter: 3+ moons anywhere trigger Dragon Stampede
+    const moonCount = flat.filter(s => SYMBOLS[s].id === 'moon').length;
+    if (moonCount >= 3 && !triggerFn) {
+      triggerFn = () => activateStampede();
+      triggerLabel = `🌙×${moonCount} DRAGON STAMPEDE!`;
+    }
   }
 
   if (triggerFn) {
@@ -2232,6 +2314,7 @@ function evaluateLine(lineSymbols, bet) {
 }
 
 function finishSpin() {
+  if (window._pawLockEnding) return; // paw lock bonus animation in progress
   isSpinning = false;
   document.getElementById('spin-btn').disabled = false;
   updateFreeSpinModeUI();
@@ -2284,13 +2367,123 @@ function activateStampede() {
 function updateFreeSpinModeUI() {
   const btn = document.getElementById('spin-btn');
   const label = document.getElementById('spin-btn-label');
-  if (freeSpins > 0) {
+  if (pawLockActive) {
+    btn.classList.add('free-mode');
+    if (label) label.textContent = '🔒 SPIN';
+  } else if (freeSpins > 0) {
     btn.classList.add('free-mode');
     if (label) label.textContent = 'FREE SPIN';
   } else {
     btn.classList.remove('free-mode');
     if (label) label.textContent = 'SPIN';
   }
+}
+
+// ===== PAW LOCK FREE SPINS =====
+function activatePawLock() {
+  pawLockActive = true;
+  pawLockedReels = new Set();
+  pawLockSpinsLeft = 3;
+  freeSpins = 3; // use existing free spin counter for free spins
+  freeSpinMultiplier = 1;
+  sessionStats.freeSpinTriggers = (sessionStats.freeSpinTriggers || 0) + 1;
+  updatePawLockBar();
+  updateFreeSpinsBar();
+  soundFreeSpins();
+  haptic('jackpot');
+  fireParticles(50, 'bonus');
+  showNotification('🔒', 'PAW LOCK SPINS! 🐱 and 🐾 reels LOCK! Each lock resets to 3 spins!');
+  finishSpin();
+}
+
+function checkPawLocks() {
+  let newLock = false;
+  reelSymbols.forEach((reel, ri) => {
+    if (pawLockedReels.has(ri)) return;
+    const hasLockSym = reel.some(s => SYMBOLS[s].id === 'cat' || SYMBOLS[s].id === 'paw' || SYMBOLS[s].isScatter || SYMBOLS[s].isScatter2);
+    if (hasLockSym) {
+      pawLockedReels.add(ri);
+      newLock = true;
+      for (let row = 0; row < NUM_ROWS; row++) {
+        const cell = document.getElementById(`cell-${ri}-${row}`);
+        if (cell) cell.classList.add('paw-locked');
+      }
+      soundCoin();
+      haptic('heavy');
+      showNotification('🔒', `Reel ${ri + 1} LOCKED! ${5 - pawLockedReels.size} left!`);
+    }
+  });
+
+  if (newLock) {
+    // Reset spin counter when a new reel locks
+    pawLockSpinsLeft = 3;
+    freeSpins = 3;
+  } else {
+    pawLockSpinsLeft--;
+    freeSpins = pawLockSpinsLeft;
+  }
+
+  updatePawLockBar();
+
+  // Check end condition: all 5 locked or spins ran out
+  if (pawLockedReels.size >= 5 || (pawLockSpinsLeft <= 0 && !newLock)) {
+    // Block finishSpin until after paw lock bonus is displayed
+    window._pawLockEnding = true;
+    setTimeout(() => { window._pawLockEnding = false; finishPawLock(); }, 800);
+  } else {
+    updateFreeSpinsBar();
+    updateFreeSpinModeUI();
+  }
+}
+
+function updatePawLockBar() {
+  const bar = document.getElementById('paw-lock-bar');
+  const countEl = document.getElementById('paw-lock-count');
+  const lockedEl = document.getElementById('paw-lock-locked');
+  if (!pawLockActive) {
+    if (bar) bar.style.display = 'none';
+    return;
+  }
+  if (bar) bar.style.display = 'block';
+  if (countEl) countEl.textContent = Math.max(0, pawLockSpinsLeft);
+  if (lockedEl) lockedEl.textContent = pawLockedReels.size;
+}
+
+function finishPawLock() {
+  const bet = state.bet;
+  const p = state.player;
+  const locked = pawLockedReels.size;
+
+  // Bonus payout based on how many reels locked
+  const multipliers = [0, 5, 15, 40, 100, 300];
+  const mult = multipliers[locked] || 0;
+  const bonus = mult * bet;
+
+  pawLockActive = false;
+  pawLockedReels = new Set();
+  pawLockSpinsLeft = 0;
+  freeSpins = 0;
+  freeSpinMultiplier = 1;
+
+  // Clear lock visuals
+  document.querySelectorAll('.paw-locked').forEach(el => el.classList.remove('paw-locked'));
+  updatePawLockBar();
+  updateFreeSpinsBar();
+  updateFreeSpinModeUI();
+
+  if (bonus > 0) {
+    p.coins += bonus;
+    updatePlayerUI();
+    soundJackpot();
+    haptic('jackpot');
+    fireParticles(locked >= 5 ? 120 : 60, locked >= 5 ? 'jackpot' : 'big');
+    showBigWin(bonus, locked >= 5 ? '🔒 ALL REELS LOCKED! 🔒' : `🔒 ${locked} REELS LOCKED!`);
+    showNotification('🔒', `PAW LOCK PAYS ${fmt$(bonus)}! (${locked}/5 reels × ${mult})`);
+  } else {
+    showNotification('😿', 'Paw Lock ended — no reels locked this time!');
+  }
+  saveState();
+  finishSpin();
 }
 
 // ===== JACKPOT =====
@@ -2968,6 +3161,291 @@ window.startCrabRace = function(yourCrabIdx, bet) {
   }, 100);
 };
 
+// ===== NEKO TOWER =====
+// Climb 5 floors by picking the lucky cat each floor. Wrong pick = fall and take prize so far.
+function triggerNekoTower() {
+  const bet = state.bet;
+  const floorMultipliers = [3, 8, 20, 50, 150]; // per-floor multiplier of bet
+  let currentFloor = 0;
+  let earnedSoFar = 0;
+
+  function buildTowerHTML() {
+    let html = '<div id="tower-wrap" style="width:100%">';
+    for (let f = 4; f >= 0; f--) {
+      const mult = floorMultipliers[f];
+      const isActive = f === currentFloor;
+      const isCleared = f < currentFloor;
+      html += `<div class="tower-floor ${isActive ? 'active' : ''} ${isCleared ? 'cleared' : ''}" id="tower-floor-${f}">
+        <span class="tower-floor-label">×${mult}</span>`;
+      const catEmojis = ['🐱','😸','😺','😻','🙀'];
+      // shuffle 3 per floor
+      const cats = [...catEmojis].sort(() => Math.random() - 0.5).slice(0, 3);
+      window[`_towerFloor${f}`] = { cats, luckyIdx: Math.floor(Math.random() * 3), mult };
+      cats.forEach((cat, i) => {
+        html += `<button class="mg-btn" id="tower-btn-${f}-${i}" style="width:65px;height:65px;font-size:1.8rem" onclick="pickTowerCat(${f},${i})" ${!isActive ? 'disabled' : ''}>${cat}</button>`;
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  openMiniGame('🏮 NEKO TOWER!', 'Pick the lucky cat on each floor — or take your prize!', '', null);
+  document.getElementById('minigame-content').innerHTML = buildTowerHTML();
+
+  window._towerBet = bet;
+  window._towerFloor = 0;
+  window._towerEarned = 0;
+
+  // Add a "cash out" button
+  updateTowerCashOut();
+}
+
+function updateTowerCashOut() {
+  const floor = window._towerFloor || 0;
+  const earned = window._towerEarned || 0;
+  let cashBtn = document.getElementById('tower-cashout-btn');
+  if (!cashBtn) {
+    cashBtn = document.createElement('button');
+    cashBtn.id = 'tower-cashout-btn';
+    cashBtn.style.cssText = 'margin-top:10px;background:linear-gradient(135deg,#007700,#00CC44);border:2px solid gold;border-radius:10px;color:gold;font-size:0.95rem;font-weight:700;padding:8px 20px;cursor:pointer;';
+    cashBtn.onclick = () => cashOutTower();
+    document.getElementById('minigame-content').appendChild(cashBtn);
+  }
+  if (floor === 0) {
+    cashBtn.style.display = 'none';
+  } else {
+    cashBtn.style.display = 'inline-block';
+    cashBtn.textContent = `💰 Cash Out ${fmt$(earned)}`;
+  }
+}
+
+window.cashOutTower = function() {
+  const earned = window._towerEarned || 0;
+  const p = state.player;
+  p.coins += earned;
+  updatePlayerUI();
+  soundBigWin();
+  fireParticles(40, 'win');
+  document.getElementById('minigame-result').innerHTML = `<span style="color:#FFD700">💰 Cashed out ${fmt$(earned)}!</span>`;
+  document.getElementById('mg-close-btn').style.display = 'inline-block';
+  const cashBtn = document.getElementById('tower-cashout-btn');
+  if (cashBtn) cashBtn.style.display = 'none';
+  saveState();
+};
+
+window.pickTowerCat = function(floor, idx) {
+  const floorData = window[`_towerFloor${floor}`];
+  if (!floorData) return;
+  const bet = window._towerBet;
+  const isLucky = idx === floorData.luckyIdx;
+
+  // Disable all buttons on this floor
+  for (let i = 0; i < 3; i++) {
+    const btn = document.getElementById(`tower-btn-${floor}-${i}`);
+    if (btn) {
+      btn.disabled = true;
+      if (i === floorData.luckyIdx) {
+        btn.style.background = 'rgba(0,160,0,0.6)';
+        btn.style.borderColor = '#00FF44';
+      } else if (i === idx && !isLucky) {
+        btn.style.background = 'rgba(160,0,0,0.6)';
+        btn.style.borderColor = '#FF4444';
+      }
+    }
+  }
+
+  if (!isLucky) {
+    // Wrong pick — take earned so far (if any) or nothing
+    const earned = window._towerEarned || 0;
+    const p = state.player;
+    if (earned > 0) p.coins += earned;
+    updatePlayerUI();
+    soundLose();
+    haptic('heavy');
+    document.getElementById('minigame-result').innerHTML = earned > 0
+      ? `<span style="color:#FF8888">💥 Wrong cat! But kept ${fmt$(earned)}!</span>`
+      : `<span style="color:#FF4444">💥 Wrong cat! No prize this time.</span>`;
+    document.getElementById('mg-close-btn').style.display = 'inline-block';
+    const cashBtn = document.getElementById('tower-cashout-btn');
+    if (cashBtn) cashBtn.style.display = 'none';
+    saveState();
+    return;
+  }
+
+  // Correct pick!
+  const prize = floorData.mult * bet;
+  window._towerEarned = (window._towerEarned || 0) + prize;
+  window._towerFloor = floor + 1;
+  soundCoin();
+  haptic('medium');
+  fireParticles(20, 'win');
+
+  if (floor >= 4) {
+    // Cleared all 5 floors!
+    const total = window._towerEarned;
+    const p = state.player;
+    p.coins += total;
+    updatePlayerUI();
+    soundJackpot();
+    haptic('jackpot');
+    fireParticles(80, 'jackpot');
+    document.getElementById('minigame-result').innerHTML = `<span style="color:#FFD700">🏆 ALL FLOORS CLEARED! Won ${fmt$(total)}!</span>`;
+    document.getElementById('mg-close-btn').style.display = 'inline-block';
+    const cashBtn = document.getElementById('tower-cashout-btn');
+    if (cashBtn) cashBtn.style.display = 'none';
+    saveState();
+    return;
+  }
+
+  // Advance to next floor
+  setTimeout(() => {
+    // Unlock next floor buttons
+    const nextFloor = floor + 1;
+    const nextFloorEl = document.getElementById(`tower-floor-${nextFloor}`);
+    if (nextFloorEl) nextFloorEl.classList.add('active');
+    const currentFloorEl = document.getElementById(`tower-floor-${floor}`);
+    if (currentFloorEl) { currentFloorEl.classList.remove('active'); currentFloorEl.classList.add('cleared'); }
+    for (let i = 0; i < 3; i++) {
+      const btn = document.getElementById(`tower-btn-${nextFloor}-${i}`);
+      if (btn) btn.disabled = false;
+    }
+    updateTowerCashOut();
+  }, 600);
+};
+
+// ===== LUCKY COIN FLIP =====
+// Double-or-nothing escalator: bet grows each round, wrong call ends it.
+function triggerCoinFlip() {
+  const bet = state.bet;
+  const prizes = [2, 5, 12, 30, 75, 200].map(m => m * bet); // prize per level if you cash out/win
+
+  let level = 0;
+  const history = [];
+
+  function buildFlipHTML() {
+    return `
+      <div style="text-align:center;width:100%">
+        <div style="font-size:3rem;margin-bottom:8px" id="flip-coin-display">🪙</div>
+        <div style="color:#FF9944;font-size:0.85rem;margin-bottom:6px">Level ${level + 1}/6 — Prize: <b>${fmt$(prizes[level])}</b></div>
+        <div class="flip-history" id="flip-history"></div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:10px">
+          <button class="mg-btn" id="flip-heads-btn" onclick="doFlip('heads')" style="width:100px;height:60px;font-size:1.1rem;border-radius:12px">🐱 HEADS</button>
+          <button class="mg-btn" id="flip-tails-btn" onclick="doFlip('tails')" style="width:100px;height:60px;font-size:1.1rem;border-radius:12px">🌙 TAILS</button>
+        </div>
+        <div style="margin-top:10px" id="flip-cashout-wrap"></div>
+      </div>`;
+  }
+
+  openMiniGame('🔔 LUCKY COIN FLIP!', 'Call it right to keep climbing — or cash out!', buildFlipHTML(), null);
+  window._flipLevel = 0;
+  window._flipPrizes = prizes;
+  window._flipHistory = [];
+  updateFlipCashOut();
+}
+
+function updateFlipCashOut() {
+  const level = window._flipLevel || 0;
+  const prizes = window._flipPrizes || [];
+  const wrap = document.getElementById('flip-cashout-wrap');
+  if (!wrap) return;
+  if (level === 0) { wrap.innerHTML = ''; return; }
+  const cashPrize = prizes[level - 1];
+  wrap.innerHTML = `<button style="background:linear-gradient(135deg,#007700,#00CC44);border:2px solid gold;border-radius:10px;color:gold;font-size:0.9rem;font-weight:700;padding:7px 18px;cursor:pointer;" onclick="cashOutFlip()">💰 Cash Out ${fmt$(cashPrize)}</button>`;
+}
+
+window.cashOutFlip = function() {
+  const level = window._flipLevel || 0;
+  const prizes = window._flipPrizes || [];
+  if (level === 0) return;
+  const prize = prizes[level - 1];
+  const p = state.player;
+  p.coins += prize;
+  updatePlayerUI();
+  soundBigWin();
+  document.getElementById('minigame-result').innerHTML = `<span style="color:#FFD700">💰 Cashed out ${fmt$(prize)}!</span>`;
+  document.getElementById('mg-close-btn').style.display = 'inline-block';
+  const wrap = document.getElementById('flip-cashout-wrap');
+  if (wrap) wrap.innerHTML = '';
+  saveState();
+};
+
+window.doFlip = function(call) {
+  const level = window._flipLevel || 0;
+  const prizes = window._flipPrizes || [];
+  const outcomes = ['heads', 'tails'];
+  const result = outcomes[Math.floor(Math.random() * 2)];
+  const isWin = call === result;
+
+  // Disable buttons during animation
+  ['flip-heads-btn', 'flip-tails-btn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.disabled = true;
+  });
+
+  const coinEl = document.getElementById('flip-coin-display');
+  if (coinEl) {
+    coinEl.style.transition = 'transform 0.4s';
+    coinEl.style.transform = 'rotateY(720deg) scale(1.3)';
+    setTimeout(() => { coinEl.textContent = result === 'heads' ? '🐱' : '🌙'; }, 200);
+    setTimeout(() => { coinEl.style.transform = 'rotateY(0deg) scale(1)'; }, 400);
+  }
+
+  const histEl = document.getElementById('flip-history');
+  if (histEl) {
+    const dot = document.createElement('span');
+    dot.className = 'flip-result';
+    dot.textContent = isWin ? '✅' : '❌';
+    histEl.appendChild(dot);
+  }
+
+  setTimeout(() => {
+    if (!isWin) {
+      soundLose();
+      haptic('heavy');
+      document.getElementById('minigame-result').innerHTML = `<span style="color:#FF4444">💥 ${result === 'heads' ? '🐱 Heads' : '🌙 Tails'}! Bad luck! No prize.</span>`;
+      document.getElementById('mg-close-btn').style.display = 'inline-block';
+      const wrap = document.getElementById('flip-cashout-wrap');
+      if (wrap) wrap.innerHTML = '';
+      saveState();
+      return;
+    }
+
+    const newLevel = level + 1;
+    window._flipLevel = newLevel;
+    soundCoin();
+    haptic('medium');
+
+    if (newLevel >= prizes.length) {
+      // Max level!
+      const prize = prizes[prizes.length - 1];
+      const p = state.player;
+      p.coins += prize;
+      updatePlayerUI();
+      soundJackpot();
+      haptic('jackpot');
+      fireParticles(80, 'jackpot');
+      document.getElementById('minigame-result').innerHTML = `<span style="color:#FFD700">🏆 PERFECT STREAK! Won ${fmt$(prize)}!</span>`;
+      document.getElementById('mg-close-btn').style.display = 'inline-block';
+      const wrap = document.getElementById('flip-cashout-wrap');
+      if (wrap) wrap.innerHTML = '';
+      saveState();
+      return;
+    }
+
+    // Update UI for next level
+    if (coinEl) coinEl.textContent = '🪙';
+    const subEl = document.querySelector('#minigame-subtitle');
+    if (subEl) subEl.textContent = `Level ${newLevel + 1}/6 — Prize: ${fmt$(prizes[newLevel])}`;
+    updateFlipCashOut();
+    ['flip-heads-btn', 'flip-tails-btn'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.disabled = false;
+    });
+    fireParticles(15, 'win');
+  }, 600);
+};
+
 // ===== UI UPDATES =====
 function updateAllUI() {
   updatePlayerUI();
@@ -3009,13 +3487,19 @@ function updateStreakDisplay() {
 function updateFreeSpinsBar() {
   const bar = document.getElementById('free-spins-bar');
   const countEl = document.getElementById('free-spins-count');
+  // During Paw Lock the free-spins bar is replaced by paw-lock bar
+  if (pawLockActive) {
+    if (bar) bar.style.display = 'none';
+    updatePawLockBar();
+    updateFreeSpinModeUI();
+    return;
+  }
   if (freeSpins > 0) {
     bar.style.display = 'block';
     if (countEl) countEl.textContent = freeSpins;
   } else {
     bar.style.display = 'none';
-    freeSpinMultiplier = 1; // reset multiplier when free spins end
-    // Reset stampede when free spins run out
+    freeSpinMultiplier = 1;
     if (stampedeActive) {
       stampedeActive = false;
       stampedeMult = 1;
@@ -3059,6 +3543,7 @@ function clearLastWin() {
 }
 
 function clearCellHighlights() {
+  // Don't remove paw-locked class — those reels stay locked
   document.querySelectorAll('.reel-cell').forEach(c => c.classList.remove('winning', 'wild-stacked'));
   const canvas = document.getElementById('win-line-overlay');
   const ctx = canvas.getContext('2d');
