@@ -1088,7 +1088,7 @@
     <h3>⚡ Special Features</h3>
     <div style="font-size:0.78rem; line-height:1.8; color:rgba(255,200,150,0.8)">
       <div>🐱×3 <b style="color:#FFD700">CAT SHRINE</b> – Pick a lucky cat!</div>
-      <div>🐠×3 <b style="color:#FFD700">FISH FRENZY</b> – Catch fish for coins!</div>
+      <div>🐠×4 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
       <div>🔮×3 <b style="color:#FFD700">FORTUNE WHEEL</b> – Spin for riches!</div>
       <div>🦀×4 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
       <div>🐙 = <b style="color:#9B59B6">WILD</b> – Substitutes all!</div>
@@ -1345,7 +1345,7 @@ let history = [];
 const ACHIEVEMENTS = [
   { id: 'first_spin',     label: '🌟 First Spin',       icon: '🎰', desc: 'Spin for the first time',        check: p => p.totalSpins >= 1 },
   { id: 'cat_bonus',      label: '🐱 Cat Whisperer',    icon: '🐱', desc: 'Trigger the Cat Shrine',         check: (p,s) => (s.catBonuses||0) >= 1 },
-  { id: 'fish_bonus',     label: '🐠 Fisher King',      icon: '🐠', desc: 'Trigger Fish Frenzy',            check: (p,s) => (s.fishBonuses||0) >= 1 },
+  { id: 'fish_bonus',     label: '🌊 Ocean Master',      icon: '🌊', desc: 'Trigger Ocean Frenzy',           check: (p,s) => (s.fishBonuses||0) >= 1 },
   { id: 'streak_3',       label: '🔥 Hot Streak',       icon: '🔥', desc: 'Win 3 spins in a row',           check: p => p.consecutiveWins >= 3 },
   { id: 'streak_5',       label: '💥 Unstoppable',      icon: '💥', desc: 'Win 5 spins in a row',           check: p => p.consecutiveWins >= 5 },
   { id: 'big_win_1',      label: '💰 Big Winner',       icon: '💰', desc: 'Win 500+ in a single spin',      check: (p,s) => (s.biggestWin||0) >= 500 },
@@ -1782,7 +1782,7 @@ function triggerFishFrenzy() {
   sessionStats.fishBonuses++;
   checkAchievements();
 
-  openMiniGame('🐠 FISH FRENZY!', 'Click the fish before they swim away!', '<div id="fish-pond"></div>', null);
+  openMiniGame('🌊 OCEAN FRENZY!', 'Catch the sea creatures before they escape!', '<div id="fish-pond"></div>', null);
 
   const pond = document.getElementById('fish-pond');
   let caught = 0;
