@@ -42,7 +42,7 @@
     /* iOS safe areas */
     padding-bottom: env(safe-area-inset-bottom);
     touch-action: pan-y;
-    overscroll-behavior: none;
+    overscroll-behavior-x: none;
   }
 
   button {
@@ -56,12 +56,12 @@
     width: 100%;
     max-width: 900px;
     text-align: center;
-    padding: max(12px, env(safe-area-inset-top)) 16px 4px;
+    padding: max(6px, env(safe-area-inset-top)) 16px 2px;
     position: relative;
   }
 
   #logo {
-    font-size: clamp(1.4rem, 6vw, 3rem);
+    font-size: clamp(1.1rem, 5vw, 3rem);
     font-weight: 900;
     background: linear-gradient(135deg, #FFD700 0%, #FF8C00 40%, #FFD700 70%, #FFF176 100%);
     -webkit-background-clip: text;
@@ -78,17 +78,30 @@
     to   { filter: drop-shadow(0 0 20px rgba(255,180,0,0.9)) drop-shadow(0 0 40px rgba(255,100,0,0.4)); }
   }
 
-  #subtitle { font-size: 0.85rem; color: #FF9944; letter-spacing: 4px; margin-top: -4px; opacity: 0.85; }
+  #subtitle { font-size: clamp(0.6rem, 2.5vw, 0.85rem); color: #FF9944; letter-spacing: 3px; margin-top: -2px; opacity: 0.85; }
 
-  /* ===== PLAYERS ===== */
+  /* ===== COINS DISPLAY ===== */
   #coins-display {
     text-align: center;
     font-size: clamp(1rem, 4vw, 1.2rem);
     font-weight: 900;
     color: var(--gold);
-    padding: 4px 0 8px;
+    padding: 4px 0 6px;
     letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255,200,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 12px;
   }
+  #last-win-display {
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+    color: #00FF88;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #last-win-display.show { opacity: 1; }
 
   /* ===== JACKPOT ===== */
   #jackpot-bar {
@@ -232,14 +245,6 @@
     overflow: hidden;
   }
 
-  #machine-frame::before {
-    content: '🐉 幸運 🐉';
-    position: absolute;
-    top: 8px; left: 50%; transform: translateX(-50%);
-    font-size: 0.75rem; color: rgba(255,180,0,0.5);
-    letter-spacing: 8px;
-    pointer-events: none;
-  }
 
   /* ===== REELS ===== */
   #reels-container {
@@ -285,12 +290,17 @@
   .reel {
     flex: 1;
     min-width: 0;
-    height: min(340px, 70vw);
+    height: calc(min(85px, 17.5vw) * 4);  /* exactly 4 cell heights */
     overflow: hidden;
     border-radius: 8px;
     position: relative;
     background: rgba(0,0,0,0.5);
     border: 1px solid #330000;
+  }
+  @media (max-height: 750px) {
+    .reel {
+      height: calc(min(68px, 14vw) * 4);
+    }
   }
 
   .reel-strip {
@@ -313,10 +323,35 @@
     user-select: none;
   }
 
+  /* On small screens, shrink cells so controls stay visible */
+  @media (max-height: 750px) {
+    .reel-cell {
+      height: min(68px, 14vw);
+      font-size: clamp(1.4rem, 7vw, 2rem);
+    }
+  }
+
   .reel-cell.winning {
     background: radial-gradient(ellipse, rgba(255,220,0,0.3) 0%, transparent 70%) !important;
     animation: cellWin 0.4s ease-in-out infinite alternate;
   }
+
+  .wild-badge {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.42rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+    background: linear-gradient(90deg, #9B59B6, #C44CFF);
+    border-radius: 3px;
+    padding: 1px 4px;
+    pointer-events: none;
+    line-height: 1.4;
+  }
+  .reel-cell { position: relative; }
 
   @keyframes cellWin {
     from { transform: scale(1); filter: brightness(1); }
@@ -328,13 +363,13 @@
 
   /* ===== WIN DISPLAY ===== */
   #win-display {
-    min-height: 44px;
+    min-height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    margin: 8px 0;
-    font-size: 1.1rem;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--gold);
   }
@@ -388,7 +423,7 @@
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 8px;
-    padding: 8px 4px 4px;
+    padding: 6px 4px max(calc(env(safe-area-inset-bottom) + 8px), 16px);
   }
 
   .bet-group {
@@ -960,8 +995,15 @@
     font-size: 0.85rem;
     color: #FF6644;
     font-weight: 700;
-    min-height: 20px;
     margin-bottom: 2px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 0;
+    opacity: 0;
+  }
+  #multiplier-display.active {
+    max-height: 28px;
+    opacity: 1;
   }
 
   /* ===== SCROLLBAR ===== */
@@ -969,16 +1011,45 @@
   ::-webkit-scrollbar-track { background: var(--darker); }
   ::-webkit-scrollbar-thumb { background: #440000; border-radius: 3px; }
 
-  /* ===== NOTIFICATION — slide down from top on mobile ===== */
+  /* ===== NOTIFICATION — slide up from bottom on mobile ===== */
   @media (max-width: 480px) {
     #notification {
       top: auto;
-      bottom: max(80px, env(safe-area-inset-bottom, 20px) + 70px);
+      /* sit above Safari's bottom chrome (~83px) + safe area */
+      bottom: max(100px, calc(env(safe-area-inset-bottom) + 90px));
       right: 50%;
-      transform: translateX(50%) translateY(120px);
+      transform: translateX(50%) translateY(200px);
       max-width: 90vw;
+      pointer-events: none;
     }
-    #notification.show { transform: translateX(50%) translateY(0); }
+    #notification.show {
+      transform: translateX(50%) translateY(0);
+      pointer-events: auto;
+    }
+    /* Push controls above Safari chrome */
+    #controls {
+      padding-bottom: max(calc(env(safe-area-inset-bottom) + 12px), 20px);
+    }
+    /* Tighten spacing on small phones */
+    #jackpot-bar { padding: 2px 12px; }
+    #vault-bar { padding: 1px 12px 2px; }
+    #vault-inner { padding: 4px 10px; }
+    #vault-track { height: 10px; }
+    #win-display { min-height: 28px; margin: 2px 0; }
+    #win-amount { font-size: 1.2rem; }
+    #coins-display { padding: 2px 0 4px; font-size: clamp(0.9rem, 3.5vw, 1.1rem); }
+    #reels-container { padding: 4px; gap: 3px; margin-top: 10px; }
+    #machine-frame { padding: 6px; }
+    #machine { padding: 0 6px; }
+    #free-spins-bar { font-size: 0.75rem; padding: 4px 8px; margin-top: 12px; }
+  }
+
+  /* Extra compact for very short screens (iPhone SE etc) */
+  @media (max-width: 480px) and (max-height: 700px) {
+    .reel-cell { height: min(58px, 12vw); font-size: clamp(1.2rem, 6vw, 1.7rem); }
+    #header { padding-top: 4px; padding-bottom: 0; }
+    #logo { font-size: clamp(1rem, 4.5vw, 1.5rem); }
+    #subtitle { display: none; }
   }
 
   /* ===== MINI GAME BOX — full mobile ===== */
@@ -1011,6 +1082,59 @@
     color: rgba(255,180,100,0.4);
     padding: 2px 0 4px;
     letter-spacing: 1px;
+  }
+
+  /* Hide below-fold content on mobile — game fits on one screen */
+  @media (max-width: 480px) {
+    #swipe-hint { display: none; }
+    #info-panel { display: none; }
+    #achievements-panel { display: none; }
+    #history-panel { display: none; }
+    /* Version footer: keep visible but ultra-compact */
+    #version-footer { padding: 4px 16px 12px; }
+  }
+
+  /* ===== VERSION FOOTER ===== */
+  #version-footer {
+    width: 100%;
+    max-width: 900px;
+    padding: 8px 16px 24px;
+    text-align: center;
+  }
+  #version-footer details {
+    display: inline-block;
+  }
+  #version-footer summary {
+    font-size: 0.62rem;
+    color: rgba(255,150,80,0.3);
+    letter-spacing: 1px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  #version-footer summary::-webkit-details-marker { display: none; }
+  #version-footer summary:hover { color: rgba(255,150,80,0.55); }
+  #changelog {
+    margin-top: 8px;
+    font-size: 0.65rem;
+    color: rgba(255,180,100,0.45);
+    line-height: 1.8;
+    text-align: left;
+    max-width: 600px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(100,40,0,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  #changelog b { color: rgba(255,200,100,0.65); }
+
+  .reel-cell.wild-stacked {
+    background: radial-gradient(ellipse, rgba(155,89,182,0.35) 0%, transparent 80%) !important;
+    animation: wildStack 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes wildStack {
+    from { box-shadow: inset 0 0 8px rgba(155,89,182,0.4); }
+    to   { box-shadow: inset 0 0 20px rgba(196,76,255,0.8); }
   }
 </style>
 </head>
@@ -1087,20 +1211,24 @@
     </div>
 
     <!-- COINS DISPLAY -->
-    <div id="coins-display">🪙 <span id="player-coins">2,000</span></div>
+    <div id="coins-display">
+      <span id="player-coins">$2,000</span>
+      <span id="last-win-display"></span>
+    </div>
 
     <!-- CONTROLS -->
     <div id="controls">
       <div class="bet-group">
         <div class="control-label">BET</div>
         <div class="bet-buttons">
-          <button class="bet-btn active" onclick="setBet(5)" data-bet="5">5</button>
-          <button class="bet-btn" onclick="setBet(10)" data-bet="10">10</button>
-          <button class="bet-btn" onclick="setBet(25)" data-bet="25">25</button>
-          <button class="bet-btn" onclick="setBet(50)" data-bet="50">50</button>
+          <button class="bet-btn active" onclick="setBet(5)" data-bet="5">$5</button>
+          <button class="bet-btn" onclick="setBet(10)" data-bet="10">$10</button>
+          <button class="bet-btn" onclick="setBet(25)" data-bet="25">$25</button>
+          <button class="bet-btn" onclick="setBet(50)" data-bet="50">$50</button>
           <button class="bet-btn" onclick="setBet(100)" data-bet="100">MAX</button>
         </div>
-        <div class="control-label" style="margin-top:4px">LINES: <span id="lines-display">9</span></div>
+        <div class="control-label" style="margin-top:4px">LINES: <span id="lines-display">12</span></div>
+        <div class="control-label" style="margin-top:2px; color: rgba(255,220,100,0.85)">TOTAL: <span id="total-bet-display">$60</span></div>
       </div>
 
       <button id="spin-btn" onclick="spin()">
@@ -1132,12 +1260,13 @@
     <div style="font-size:0.82rem; line-height:1.9; color:rgba(255,200,150,0.85)">
       <div>🐉🔑 <b style="color:#C44CFF">DRAGON VAULT</b> – Collect 5 keys → GRAND pick game!</div>
       <div>🐱×3 <b style="color:#FFD700">CAT SHRINE</b> – Pick a lucky cat!</div>
-      <div>🐲×3 <b style="color:#FFD700">DRAGON EGG</b> – Hatch a prize!</div>
-      <div>🧧×4 <b style="color:#FFD700">ENVELOPE RAIN</b> – Tap to grab!</div>
-      <div>🐠×5 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
+      <div>😸×3 or 🐉×3 <b style="color:#FFD700">DRAGON EGG</b> – Hatch a prize!</div>
+      <div>🧧×3 <b style="color:#FFD700">ENVELOPE RAIN</b> – Tap to grab!</div>
+      <div>🐠×3 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
       <div>🔮×3 <b style="color:#FFD700">FORTUNE WHEEL</b> – Spin for riches!</div>
-      <div>🦀×5 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
-      <div>🐙 = <b style="color:#9B59B6">WILD</b> · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🐾×3 <b style="color:#FFD700">PAW RACE</b> – Back the lucky paw!</div>
+      <div>🐙 = <b style="color:#9B59B6">WILD</b> (stacks!) · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🌙×3 = <b style="color:#C44CFF">DRAGON STAMPEDE</b> free spins</div>
       <div>🌸×4 <b style="color:#00FF88">FREE SPINS</b> · 🔥 <b style="color:#FF6644">HOT STREAK</b></div>
     </div>
   </div>
@@ -1153,6 +1282,26 @@
 <div id="history-panel">
   <h3>📜 Recent Spins</h3>
   <div id="history-list"></div>
+</div>
+
+<!-- VERSION FOOTER -->
+<div id="version-footer">
+  <details>
+    <summary>v1.9.1 · Lucky Paws Casino</summary>
+    <div id="changelog">
+      <b>v1.9.1</b> — Paw Race: cat racers now have fun names (Chairman Meow, Dumpling, Soy Sauce…), removed CPU/crab references, result messages updated, achievement renamed to Paw Champ<br>
+      <b>v1.9</b> — Win lines crisp on retina (DPR-scaled canvas), win description shows wild involvement (🐙+🔮×3), total bet display (bet×lines), persistent last-win amount in balance bar<br>
+      <b>v1.8</b> — Rebalanced symbols back to cat theme: replaced crab/pufferfish/shrimp/butterfly with 😸 Happy Neko, 🐾 Lucky Paw, 🏮 Red Lantern, 🔔 Lucky Bell. Paw Race replaces Crab Race (🐱 cats run!), Happy Neko triggers Dragon Egg<br>
+      <b>v1.7</b> — Dollar currency display, win line alignment fix (dead space removed), wild stacking (2+ wilds = full reel wild), Dragon Stampede bonus (🌙×3 → multiplying free spins), dragon decoration removed<br>
+      <b>v1.6</b> — 14 symbols (added Moon 🌙, Butterfly 🦋, Shrimp 🍤), WILD badge on Octopus cells, mini games now require 3+ of symbol on a payline, Dragon Egg fully random prize pool with Fisher-Yates shuffle, version footer visible on mobile<br>
+      <b>v1.5</b> — Mobile layout fix (spin button always visible), Dragon Egg real variance, mini game combo trigger banners, hot streak/notification ghost fixes, bottom artifact removed, win frequency reduced<br>
+      <b>v1.4</b> — Remove multi-player profiles, single player with compact coins display<br>
+      <b>v1.3</b> — 5×4 reel grid, Dragon Vault grand feature, free spins manual press, crab race fix, larger mobile UI, Dragon Egg + Red Envelope Rain mini games, Ocean Frenzy rename, 12 paylines<br>
+      <b>v1.2</b> — Colored win-line overlay on canvas, free spin multiplier bug fix, Fish Frenzy frequency halved<br>
+      <b>v1.1</b> — Mobile optimization (iPhone Safari/Chrome), haptics, swipe-to-spin, PWA meta, Safari audio unlock fix, crab race layout fix<br>
+      <b>v1.0</b> — Initial release: slot machine with 3 player profiles, 6 mini games, particles, sounds, achievements
+    </div>
+  </details>
 </div>
 
 <script>
@@ -1291,22 +1440,26 @@ function soundFreeSpins() {
 
 // ===== SYMBOLS =====
 const SYMBOLS = [
-  { id: 'cat',      emoji: '🐱', name: 'Lucky Neko',     values: [0,0,75,300,1500], rarity: 1,  color: '#FFD700', isScatter: true },
-  { id: 'diamond',  emoji: '💎', name: 'Fortune Diamond', values: [0,0,40,150,600],  rarity: 2,  color: '#00BFFF' },
-  { id: 'octopus',  emoji: '🐙', name: 'Octopus Wild',   values: [0,0,35,120,400],  rarity: 3,  color: '#9B59B6', isWild: true },
-  { id: 'dragon',   emoji: '🐉', name: 'Lucky Dragon',   values: [0,0,25,90,300],   rarity: 4,  color: '#E74C3C' },
-  { id: 'fortune',  emoji: '🔮', name: 'Fortune Orb',    values: [0,0,20,70,200],   rarity: 5,  color: '#8E44AD' },
-  { id: 'hongbao',  emoji: '🧧', name: 'Red Envelope',   values: [0,0,15,50,150],   rarity: 6,  color: '#FF4444' },
-  { id: 'clownfish',emoji: '🐠', name: 'Clownfish',      values: [0,0,12,40,120],   rarity: 7,  color: '#FF8C00' },
-  { id: 'crab',     emoji: '🦀', name: 'Lucky Crab',     values: [0,0,8,28,80],     rarity: 8,  color: '#E74C3C' },
-  { id: 'pufferfish',emoji: '🐡',name: 'Pufferfish',     values: [0,0,6,20,55],     rarity: 9,  color: '#3498DB' },
-  { id: 'blossom',  emoji: '🌸', name: 'Cherry Blossom', values: [0,0,4,14,40],     rarity: 10, color: '#FF69B4', isScatter2: true },
-  { id: 'coin',     emoji: '🪙', name: 'Fortune Coin',   values: [0,0,2,8,20],      rarity: 11, color: '#F1C40F' },
+  { id: 'cat',       emoji: '🐱', name: 'Lucky Neko',      values: [0,0,75,300,1500], rarity: 1,  color: '#FFD700', isScatter: true },
+  { id: 'moon',      emoji: '🌙', name: 'Lucky Moon',       values: [0,0,50,180,700],  rarity: 2,  color: '#C8A8FF' },
+  { id: 'diamond',   emoji: '💎', name: 'Fortune Diamond',  values: [0,0,40,150,600],  rarity: 3,  color: '#00BFFF' },
+  { id: 'octopus',   emoji: '🐙', name: 'Octopus Wild',    values: [0,0,35,120,400],  rarity: 4,  color: '#9B59B6', isWild: true },
+  { id: 'dragon',    emoji: '🐉', name: 'Lucky Dragon',    values: [0,0,25,90,300],   rarity: 5,  color: '#E74C3C' },
+  { id: 'fortune',   emoji: '🔮', name: 'Fortune Orb',     values: [0,0,20,70,200],   rarity: 6,  color: '#8E44AD' },
+  { id: 'hongbao',   emoji: '🧧', name: 'Red Envelope',    values: [0,0,15,50,150],   rarity: 7,  color: '#FF4444' },
+  { id: 'neko',      emoji: '😸', name: 'Happy Neko',      values: [0,0,12,40,120],   rarity: 8,  color: '#FFB84D' },
+  { id: 'paw',       emoji: '🐾', name: 'Lucky Paw',       values: [0,0,8,28,80],     rarity: 9,  color: '#FFD700' },
+  { id: 'lantern',   emoji: '🏮', name: 'Red Lantern',     values: [0,0,7,22,65],     rarity: 10, color: '#FF4444' },
+  { id: 'clownfish', emoji: '🐠', name: 'Clownfish',       values: [0,0,6,20,55],     rarity: 11, color: '#FF8C00' },
+  { id: 'blossom',   emoji: '🌸', name: 'Cherry Blossom',  values: [0,0,4,14,40],     rarity: 12, color: '#FF69B4', isScatter2: true },
+  { id: 'bell',      emoji: '🔔', name: 'Lucky Bell',      values: [0,0,3,10,28],     rarity: 13, color: '#FFD700' },
+  { id: 'coin',      emoji: '🪙', name: 'Fortune Coin',    values: [0,0,2,8,20],      rarity: 14, color: '#F1C40F' },
 ];
 
-// Weighted reel symbols (higher rarity = less frequent)
-// blossom (free-spins scatter) lowered to make free spins rarer
-const REEL_WEIGHTS = [1, 2, 2, 3, 3, 4, 5, 6, 7, 4, 10];
+// Parallel weight array — more symbols means more variety and fewer matching runs
+// moon/diamond/octopus rare; coin/shrimp/pufferfish common (near-miss fillers)
+// blossom kept low so free spins stay special
+const REEL_WEIGHTS = [1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 3, 8, 14];
 
 const NUM_ROWS = 4; // 5 reels x 4 rows
 
@@ -1340,6 +1493,10 @@ const PAYLINES = [
   [[0,1],[1,2],[2,1],[3,2],[4,1]],
   [[0,2],[1,1],[2,2],[3,1],[4,2]],
 ];
+
+function fmt$(n) {
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
 
 // ===== GAME STATE =====
 const SAVE_KEY = 'luckypaws_v2';
@@ -1400,6 +1557,9 @@ let history = [];
 const KEYS_NEEDED = 5;
 let vaultReady = false; // set when keys hit threshold, consumed after current spin
 let lastSpinWasFree = false;
+let stampedeActive = false;
+let stampedeMult = 1;
+let stampedeWildReels = new Set();
 
 // ===== ACHIEVEMENTS =====
 const ACHIEVEMENTS = [
@@ -1412,7 +1572,7 @@ const ACHIEVEMENTS = [
   { id: 'jackpot',        label: '🏆 Jackpot!!!',       icon: '🏆', desc: 'Hit the jackpot!',               check: (p,s) => (s.jackpotHits||0) >= 1 },
   { id: 'free_spins',     label: '⭐ Free Rider',       icon: '⭐', desc: 'Trigger Free Spins',             check: (p,s) => (s.freeSpinTriggers||0) >= 1 },
   { id: 'fortune_wheel',  label: '🔮 Oracle',           icon: '🔮', desc: 'Trigger Fortune Wheel',          check: (p,s) => (s.wheelSpins||0) >= 1 },
-  { id: 'crab_race',      label: '🦀 Crab Champ',       icon: '🦀', desc: 'Win a crab race',                check: (p,s) => (s.crabWins||0) >= 1 },
+  { id: 'paw_race',       label: '🐾 Paw Champ',        icon: '🐾', desc: 'Win a paw race',                 check: (p,s) => (s.pawWins||0) >= 1 },
   { id: 'millionaire',    label: '💎 Millionaire',      icon: '💎', desc: 'Accumulate 5000+ coins',         check: p => p.coins >= 5000 },
   { id: 'broke',          label: '😅 Gambler\'s Spirit',icon: '😅', desc: 'Go below 50 coins',              check: p => p.coins < 50 && p.totalSpins > 5 },
   { id: 'spin_50',        label: '🎡 Spinner',          icon: '🎡', desc: 'Complete 50 spins',              check: p => p.totalSpins >= 50 },
@@ -1421,7 +1581,7 @@ const ACHIEVEMENTS = [
   { id: 'vault_3',        label: '👑 Vault Lord',       icon: '👑', desc: 'Open the Dragon Vault 3 times',  check: p => (p.vaultOpens||0) >= 3 },
 ];
 
-let sessionStats = { catBonuses:0, fishBonuses:0, biggestWin:0, jackpotHits:0, freeSpinTriggers:0, wheelSpins:0, crabWins:0, dragonFives:0 };
+let sessionStats = { catBonuses:0, fishBonuses:0, biggestWin:0, jackpotHits:0, freeSpinTriggers:0, wheelSpins:0, pawWins:0, dragonFives:0 };
 
 // ===== INIT =====
 function init() {
@@ -1501,7 +1661,12 @@ function renderReel(reelIndex) {
     const cell = document.createElement('div');
     cell.className = 'reel-cell';
     cell.id = `cell-${reelIndex}-${rowIdx}`;
-    cell.textContent = SYMBOLS[symIdx].emoji;
+    const sym = SYMBOLS[symIdx];
+    if (sym.isWild) {
+      cell.innerHTML = `${sym.emoji}<span class="wild-badge">WILD</span>`;
+    } else {
+      cell.textContent = sym.emoji;
+    }
     strip.appendChild(cell);
   });
 }
@@ -1542,6 +1707,7 @@ function spin() {
   state.globalSpins++;
   updatePlayerUI();
   clearWinDisplay();
+  clearLastWin();
   clearCellHighlights();
 
   // Start spinning all reels
@@ -1591,9 +1757,29 @@ function evaluateResult() {
   const winningPaylines = [];
   const winDescriptions = [];
 
+  // Wild stacking: if a reel has 2+ wilds, the whole reel becomes wild for this spin
+  const stackedReels = new Set();
+  reelSymbols.forEach((reel, reelIdx) => {
+    const wildCount = reel.filter(s => SYMBOLS[s].isWild).length;
+    if (wildCount >= 2) {
+      stackedReels.add(reelIdx);
+      // Visual: add glow class to all cells on this reel
+      reel.forEach((_, rowIdx) => {
+        const cell = document.getElementById(`cell-${reelIdx}-${rowIdx}`);
+        if (cell) cell.classList.add('wild-stacked');
+      });
+    }
+  });
+
+  // Build effective symbols (stacked reels are all-wild)
+  const wildIdx = SYMBOLS.findIndex(s => s.isWild);
+  function effectiveSymbol(reelIdx, rowIdx) {
+    return stackedReels.has(reelIdx) ? wildIdx : reelSymbols[reelIdx][rowIdx];
+  }
+
   // Check each payline
   PAYLINES.forEach((line, lineIdx) => {
-    const lineSymbols = line.map(([reel, row]) => reelSymbols[reel][row]);
+    const lineSymbols = line.map(([reel, row]) => effectiveSymbol(reel, row));
     const lineWin = evaluateLine(lineSymbols, bet);
     if (lineWin.amount > 0) {
       totalWin += lineWin.amount;
@@ -1603,13 +1789,27 @@ function evaluateResult() {
     }
   });
 
-  // Check scatter (cats anywhere)
+  // Scatters count anywhere on grid (their whole purpose)
   const flat = reelSymbols.flat();
   const catCount     = flat.filter(s => SYMBOLS[s].isScatter).length;
   const blossomCount = flat.filter(s => SYMBOLS[s].isScatter2).length;
-  const fortuneCount = flat.filter(s => SYMBOLS[s].id === 'fortune').length;
-  const crabCount    = flat.filter(s => SYMBOLS[s].id === 'crab').length;
-  const fishCount    = flat.filter(s => SYMBOLS[s].id === 'clownfish').length;
+
+  // Non-scatter mini game triggers: require a run of 3+ on the SAME payline
+  // This makes them feel earned — you see the symbols line up
+  function maxOnLine(symbolId) {
+    return PAYLINES.reduce((max, line) => {
+      const count = line.filter(([r, row]) => SYMBOLS[reelSymbols[r][row]].id === symbolId).length;
+      return Math.max(max, count);
+    }, 0);
+  }
+  const dragonOnLine  = maxOnLine('dragon');
+  const fortuneOnLine = maxOnLine('fortune');
+  const hongbaoOnLine = maxOnLine('hongbao');
+  const fishOnLine    = maxOnLine('clownfish');
+  const pawOnLine     = maxOnLine('paw');
+  const nekoOnLine    = maxOnLine('neko');
+
+  // Keep flat counts for stat tracking only
   const dragonCount  = flat.filter(s => SYMBOLS[s].id === 'dragon').length;
   const hongbaoCount = flat.filter(s => SYMBOLS[s].id === 'hongbao').length;
 
@@ -1683,6 +1883,24 @@ function evaluateResult() {
   // Check dragon 5
   if (dragonCount >= 5) sessionStats.dragonFives++;
 
+  // Stampede multiplier: each reel with a wild doubles the mult
+  if (stampedeActive) {
+    reelSymbols.forEach((reel, ri) => {
+      if (reel.some(s => SYMBOLS[s].isWild) || stackedReels.has(ri)) {
+        if (!stampedeWildReels.has(ri)) {
+          stampedeWildReels.add(ri);
+          stampedeMult = Math.min(stampedeMult * 2, 32);
+          showNotification('🐉', `Wild reel! Stampede ×${stampedeMult}!`);
+        }
+      }
+    });
+    if (totalWin > 0 && stampedeMult > 1) {
+      const bonus = totalWin * (stampedeMult - 1);
+      totalWin += bonus;
+      p.coins += bonus;
+    }
+  }
+
   // Earn Dragon Vault keys on paid spins (small chance) — builds toward grand feature
   if (!lastSpinWasFree) maybeAwardKey();
 
@@ -1694,45 +1912,90 @@ function evaluateResult() {
   // bonuses stay special and there's more normal spinning in between)
   let miniGameDelay = totalWin > 0 ? 1200 : 600;
 
-  const miniGameQueue = [];
-  if (catCount >= 3)     miniGameQueue.push(() => triggerCatShrine());
-  if (dragonCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerDragonEgg());
-  if (hongbaoCount >= 4 && !miniGameQueue.length) miniGameQueue.push(() => triggerHongbaoRain());
-  if (fishCount >= 5 && !miniGameQueue.length)    miniGameQueue.push(() => triggerFishFrenzy());
-  if (fortuneCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerFortuneWheel());
-  if (crabCount >= 5 && !miniGameQueue.length)    miniGameQueue.push(() => triggerCrabRace());
-  if (blossomCount >= 4 && !miniGameQueue.length) miniGameQueue.push(() => {
-    // First trigger grants fewer spins; retriggers stack only a little
-    const award = freeSpins > 0 ? 4 : 8;
-    freeSpins = Math.min(freeSpins + award, 20);
-    freeSpinMultiplier = 2;
-    updateFreeSpinsBar();
-    soundFreeSpins();
-    haptic('heavy');
-    sessionStats.freeSpinTriggers++;
-    showNotification('⭐', `+${award} FREE SPINS! Press the green SPIN.`);
-    fireParticles(40, 'free');
-    finishSpin();
-  });
+  // Determine which mini-game triggers and its combo label
+  let triggerFn = null;
+  let triggerLabel = null;
 
-  if (miniGameQueue.length > 0) {
-    setTimeout(() => {
-      miniGameQueue[0]();
-    }, miniGameDelay);
+  if (catCount >= 3)             { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
+  else if (nekoOnLine >= 3)     { triggerFn = () => triggerDragonEgg();    triggerLabel = `😸×${nekoOnLine} HAPPY NEKOS!`; }
+  else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
+  else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
+  else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
+  else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
+  else if (pawOnLine >= 3)      { triggerFn = () => triggerCrabRace();     triggerLabel = `🐾×${pawOnLine} LUCKY PAWS!`; }
+  else if (blossomCount >= 4)   {
+    triggerLabel = `🌸×${blossomCount} BLOSSOM!`;
+    triggerFn = () => {
+      // First trigger grants fewer spins; retriggers stack only a little
+      const award = freeSpins > 0 ? 4 : 8;
+      freeSpins = Math.min(freeSpins + award, 20);
+      freeSpinMultiplier = 2;
+      updateFreeSpinsBar();
+      soundFreeSpins();
+      haptic('heavy');
+      sessionStats.freeSpinTriggers++;
+      showNotification('⭐', `+${award} FREE SPINS! Press the green SPIN.`);
+      fireParticles(40, 'free');
+      finishSpin();
+    };
+  }
+
+  // Moon scatter: 3+ moons anywhere trigger Dragon Stampede
+  const moonCount = flat.filter(s => SYMBOLS[s].id === 'moon').length;
+  if (moonCount >= 3 && !triggerFn) {
+    triggerFn = () => activateStampede();
+    triggerLabel = `🌙×${moonCount} DRAGON STAMPEDE!`;
+  }
+
+  if (triggerFn) {
+    // Flash the combo label before opening the mini-game
+    showBonusTriggerBanner(triggerLabel);
+    setTimeout(() => triggerFn(), miniGameDelay + 800);
   } else {
     setTimeout(() => finishSpin(), miniGameDelay);
   }
+}
+
+function showBonusTriggerBanner(label) {
+  let banner = document.getElementById('bonus-trigger-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'bonus-trigger-banner';
+    banner.style.cssText = `
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.5);
+      background:linear-gradient(135deg,#3a0000,#1a0020);
+      border:3px solid var(--gold); border-radius:16px;
+      padding:18px 32px; text-align:center; z-index:1500;
+      color:var(--gold); font-weight:900; font-size:clamp(1.4rem,6vw,2rem);
+      letter-spacing:2px; opacity:0; pointer-events:none;
+      box-shadow:0 0 40px rgba(255,180,0,0.6);
+      transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
+    `;
+    document.body.appendChild(banner);
+  }
+  banner.textContent = label;
+  banner.style.opacity = '0';
+  banner.style.transform = 'translate(-50%,-50%) scale(0.5)';
+  void banner.offsetWidth;
+  banner.style.opacity = '1';
+  banner.style.transform = 'translate(-50%,-50%) scale(1)';
+  setTimeout(() => {
+    banner.style.opacity = '0';
+    banner.style.transform = 'translate(-50%,-50%) scale(0.8)';
+  }, 900);
 }
 
 function evaluateLine(lineSymbols, bet) {
   // Find longest run from left, treating wilds as any symbol
   let baseSymbol = -1;
   let runLen = 0;
+  let wildCount = 0;
 
   for (let i = 0; i < lineSymbols.length; i++) {
     const s = SYMBOLS[lineSymbols[i]];
     if (s.isWild) {
       runLen++;
+      wildCount++;
       continue;
     }
     if (baseSymbol === -1) {
@@ -1754,7 +2017,9 @@ function evaluateLine(lineSymbols, bet) {
   if (!sym) return { amount: 0 };
 
   const payout = sym.values[runLen] * bet;
-  return { amount: payout, desc: `${sym.emoji}×${runLen} = ${payout}` };
+  // Show wild involvement in description so it's clear how the win was formed
+  const prefix = wildCount > 0 ? `🐙+` : '';
+  return { amount: payout, desc: `${prefix}${sym.emoji}×${runLen} = ${fmt$(payout)}` };
 }
 
 function finishSpin() {
@@ -1786,6 +2051,26 @@ function finishSpin() {
   }
 }
 
+function activateStampede() {
+  stampedeActive = true;
+  stampedeMult = 1;
+  stampedeWildReels = new Set();
+  freeSpins = Math.max(freeSpins, 5);
+  freeSpinMultiplier = 1; // stampede has its own multiplier system
+  updateFreeSpinsBar();
+  // Override the free-spins bar to show stampede mode
+  const bar = document.getElementById('free-spins-bar');
+  if (bar) {
+    bar.style.background = 'linear-gradient(90deg, #1a0030, #4a0060, #1a0030)';
+    bar.style.borderColor = '#C44CFF';
+  }
+  showNotification('🐉', 'DRAGON STAMPEDE! Each wild reel doubles your multiplier!');
+  soundBonus();
+  haptic('jackpot');
+  fireParticles(60, 'bonus');
+  finishSpin();
+}
+
 // Update the spin button to clearly show free-spin mode
 function updateFreeSpinModeUI() {
   const btn = document.getElementById('spin-btn');
@@ -1811,7 +2096,7 @@ function triggerJackpot() {
   soundJackpot();
   showBigWin(prize, '🏆 JACKPOT! 🏆');
   fireParticles(150, 'jackpot');
-  showNotification('🏆', `JACKPOT! Won ${prize.toLocaleString()} coins!`);
+  showNotification('🏆', `JACKPOT! Won ${fmt$(prize)}!`);
   checkAchievements();
   saveState();
 }
@@ -1843,8 +2128,8 @@ function closeMiniGame() {
 
 // ===== DRAGON VAULT (grand feature) =====
 function maybeAwardKey() {
-  // ~5% chance per paid spin to find a key
-  if (Math.random() < 0.05) awardKey(1, false);
+  // ~3% chance per paid spin (~33 spins average per key, ~165 for full vault)
+  if (Math.random() < 0.03) awardKey(1, false);
 }
 
 function awardKey(n, fromBonus) {
@@ -2219,56 +2504,97 @@ window.spinFortuneWheel = function(bet) {
 // DRAGON EGG
 function triggerDragonEgg() {
   const bet = state.bet;
-  const prizes = [5, 8, 10, 15, 20, 25, 30, 40, 50].sort(() => Math.random() - 0.5).slice(0, 3);
+  // Full prize pool — truly random, no category guarantees
+  // Weighted so duds are more likely, big prizes are rare
+  const pool = [
+    { mult: 1,  label: '💨 Empty shell...', emoji: '🥚',  w: 10 },
+    { mult: 2,  label: '😴 Sleeping...',    emoji: '🐣',  w: 12 },
+    { mult: 3,  label: '🦎 Just a lizard',  emoji: '🦎',  w: 10 },
+    { mult: 5,  label: '🐲 Baby Dragon!',   emoji: '🐲',  w: 8  },
+    { mult: 8,  label: '🐲 Dragon Hatchling!', emoji: '🐲', w: 6 },
+    { mult: 15, label: '🐉 GREAT DRAGON!',  emoji: '🐉',  w: 4  },
+    { mult: 25, label: '🔥 RARE DRAGON!',   emoji: '🐉',  w: 2  },
+    { mult: 50, label: '👑 LEGENDARY!',     emoji: '🐉',  w: 1  },
+  ];
+  function wPick() {
+    const total = pool.reduce((s, p) => s + p.w, 0);
+    let r = Math.random() * total;
+    for (const p of pool) { r -= p.w; if (r <= 0) return p; }
+    return pool[pool.length - 1];
+  }
+  // Pick 3 independently — could be all duds or all big
+  const pick3 = [wPick(), wPick(), wPick()];
+  // Fisher-Yates shuffle positions
+  for (let i = 2; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pick3[i], pick3[j]] = [pick3[j], pick3[i]];
+  }
+
   const eggColors = ['#E74C3C', '#9B59B6', '#F1C40F'];
-  const dragons = ['🐉', '🦕', '🐲'];
+  // Randomize sizes independently
+  const sizes = ['2.4rem','3rem','2.7rem'];
+  for (let i = 2; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [sizes[i],sizes[j]]=[sizes[j],sizes[i]]; }
 
   const eggs = [0, 1, 2].map(i => `
     <button class="mg-btn" id="egg-btn-${i}" onclick="pickEgg(${i})"
-      style="font-size:2.8rem; width:90px; height:90px;
+      style="font-size:${sizes[i]}; width:90px; height:90px;
              box-shadow: 0 0 20px ${eggColors[i]}88;
              border-color: ${eggColors[i]};">
       🥚
     </button>
   `).join('');
 
-  openMiniGame('🐉 DRAGON EGG!', 'Pick an egg — one holds the legendary dragon!', eggs, null);
+  openMiniGame('🐉 DRAGON EGG!', 'Pick an egg — what will hatch?', eggs, null);
 
-  window._eggPrizes = prizes;
-  window._eggDragons = dragons;
+  window._eggData = pick3;
   window._eggBet = bet;
 }
 
 window.pickEgg = function(idx) {
-  const prizes = window._eggPrizes;
-  const dragons = window._eggDragons;
+  const data = window._eggData;
   const bet = window._eggBet;
   const p = state.player;
 
+  // Disable all buttons immediately
   [0, 1, 2].forEach(i => {
     const btn = document.getElementById('egg-btn-' + i);
-    if (!btn) return;
-    btn.disabled = true;
-    btn.style.transition = 'all 0.4s';
-    setTimeout(() => {
-      btn.textContent = dragons[i];
-      btn.style.transform = 'scale(1.2)';
-      btn.style.boxShadow = i === idx ? '0 0 30px gold' : 'none';
-    }, i * 150);
+    if (btn) btn.disabled = true;
   });
 
-  const prize = prizes[idx] * bet;
+  // Cracking animation on chosen egg first
+  const chosen = document.getElementById('egg-btn-' + idx);
+  if (chosen) {
+    chosen.style.transition = 'all 0.15s';
+    chosen.style.transform = 'scale(1.3) rotate(-5deg)';
+    setTimeout(() => { chosen.style.transform = 'scale(1.3) rotate(5deg)'; }, 150);
+    setTimeout(() => { chosen.style.transform = 'scale(1.2) rotate(0deg)'; chosen.textContent = data[idx].emoji; }, 300);
+  }
+
+  // Reveal others after a delay
+  setTimeout(() => {
+    [0, 1, 2].forEach(i => {
+      const btn = document.getElementById('egg-btn-' + i);
+      if (!btn || i === idx) return;
+      btn.style.transition = 'all 0.3s';
+      btn.style.opacity = '0.5';
+      btn.textContent = data[i].emoji;
+    });
+  }, 700);
+
+  const prize = data[idx].mult * bet;
   p.coins += prize;
   updatePlayerUI();
-  soundBigWin();
-  haptic('heavy');
-  fireParticles(45, 'jackpot');
+
+  if (data[idx].mult >= 20) { soundJackpot(); haptic('jackpot'); fireParticles(70, 'jackpot'); }
+  else if (data[idx].mult >= 8) { soundBigWin(); haptic('heavy'); fireParticles(35, 'big'); }
+  else { soundSmallWin(prize); haptic('medium'); }
 
   setTimeout(() => {
+    const isGood = data[idx].mult >= 8;
     document.getElementById('minigame-result').innerHTML =
-      `<span style="color:#FFD700">🐉 ${dragons[idx]} HATCHED! Won <b>${prize.toLocaleString()}</b> coins! (${prizes[idx]}× bet!)</span>`;
+      `<span style="color:${isGood ? '#FFD700' : '#FF8888'}">${data[idx].label} Won <b>${prize.toLocaleString()}</b> coins! (×${data[idx].mult} bet)</span>`;
     document.getElementById('mg-close-btn').style.display = 'inline-block';
-  }, 600);
+  }, 900);
   saveState();
 };
 
@@ -2344,25 +2670,35 @@ function triggerHongbaoRain() {
   }, 6000);
 }
 
-// CRAB RACE
+// PAW RACE
 function triggerCrabRace() {
   const bet = state.bet;
-  const crabNames = ['Red Claw 🦀', 'Blue Shell 🦀', 'Golden Pincer 🦀'];
+  // Each race picks 3 random names from a pool of cat racers with personality
+  const namePool = [
+    'Chairman Meow 🎖️', 'Dumpling 🥟', 'Soy Sauce 🫙', 'Noodle 🍜',
+    'Whisker Wu 🥋', 'Boba 🧋', 'Futon 🛋️', 'Lucky Strike ⚡',
+    'Sir Flops-a-Lot 🎩', 'Midnight 🌙', 'Tangerine 🍊', 'Mochi 🍡',
+  ];
+  // Shuffle and pick 3
+  const shuffled = namePool.sort(() => Math.random() - 0.5);
+  const raceNames = shuffled.slice(0, 3);
   const yourCrabIdx = Math.floor(Math.random() * 3);
+  // Assign YOUR cat a special name
+  raceNames[yourCrabIdx] = '⭐ ' + raceNames[yourCrabIdx];
 
-  const lanesHTML = `<div id="crab-race-wrap">` + crabNames.map((name, i) => `
+  const lanesHTML = `<div id="crab-race-wrap">` + raceNames.map((name, i) => `
     <div class="crab-lane ${i === yourCrabIdx ? 'your-crab' : ''}">
-      <span class="crab-label">${i === yourCrabIdx ? '⭐ YOU' : 'CPU'}</span>
-      <span class="crab-racer" id="crab-${i}">🦀</span>
+      <span class="crab-label" style="width:auto;max-width:90px;font-size:0.65rem">${name}</span>
+      <span class="crab-racer" id="crab-${i}">🐱</span>
       <div class="crab-track"><div class="crab-progress" id="crab-prog-${i}"></div></div>
     </div>
   `).join('') + `<div style="text-align:center"><button id="race-btn" onclick="startCrabRace(${yourCrabIdx}, ${bet})" style="
     margin-top:12px;background:linear-gradient(135deg,#CC2200,#FF4400);border:2px solid gold;
     border-radius:10px;color:gold;font-size:1.1rem;font-weight:700;padding:10px 28px;cursor:pointer;">
-    🦀 START RACE!
+    🐾 START RACE!
   </button></div></div>`;
 
-  openMiniGame('🦀 CRAB RACE!', `Your crab is marked ⭐ — win to get ${bet * 10} coins!`, lanesHTML, null);
+  openMiniGame('🐾 PAW RACE!', `Your cat is marked ⭐ — win to get ${fmt$(bet * 10)}!`, lanesHTML, null);
 }
 
 let crabRaceRunning = false;
@@ -2405,7 +2741,7 @@ window.startCrabRace = function(yourCrabIdx, bet) {
 
       if (isWin) {
         p.coins += prize;
-        sessionStats.crabWins++;
+        sessionStats.pawWins = (sessionStats.pawWins || 0) + 1;
         soundBigWin();
         fireParticles(40, 'win');
       } else {
@@ -2414,8 +2750,8 @@ window.startCrabRace = function(yourCrabIdx, bet) {
 
       updatePlayerUI();
       document.getElementById('minigame-result').innerHTML = isWin
-        ? `<span style="color:#FFD700">🦀 YOUR CRAB WINS! +${prize} coins!</span>`
-        : `<span style="color:#FF4444">🦀 Better luck next time! CPU wins!</span>`;
+        ? `<span style="color:#FFD700">🐱 YOUR CAT WINS! +${fmt$(prize)}!</span>`
+        : `<span style="color:#FF4444">😿 Another cat pounced ahead! Better luck next time!</span>`;
       document.getElementById('mg-close-btn').style.display = 'inline-block';
       checkAchievements();
       saveState();
@@ -2435,25 +2771,29 @@ function updateAllUI() {
 
 function updatePlayerUI() {
   const p = state.player;
-  document.getElementById('player-coins').textContent = p.coins.toLocaleString();
+  document.getElementById('player-coins').textContent = fmt$(p.coins);
 }
 
 function updateJackpotDisplay() {
-  document.getElementById('jackpot-amount').textContent = state.jackpot.toLocaleString();
+  document.getElementById('jackpot-amount').textContent = fmt$(state.jackpot);
 }
 
 function updateBetButtons() {
   document.querySelectorAll('.bet-btn').forEach(btn => {
     btn.classList.toggle('active', parseInt(btn.dataset.bet) === state.bet);
   });
+  const totalEl = document.getElementById('total-bet-display');
+  if (totalEl) totalEl.textContent = fmt$(state.bet * PAYLINES.length);
 }
 
 function updateStreakDisplay() {
   const el = document.getElementById('multiplier-display');
   if (streakMultiplier > 1) {
     el.textContent = `🔥 HOT STREAK ×${streakMultiplier} MULTIPLIER! 🔥`;
+    el.classList.add('active');
   } else {
     el.textContent = '';
+    el.classList.remove('active');
   }
 }
 
@@ -2466,6 +2806,16 @@ function updateFreeSpinsBar() {
   } else {
     bar.style.display = 'none';
     freeSpinMultiplier = 1; // reset multiplier when free spins end
+    // Reset stampede when free spins run out
+    if (stampedeActive) {
+      stampedeActive = false;
+      stampedeMult = 1;
+      stampedeWildReels = new Set();
+      if (bar) {
+        bar.style.background = '';
+        bar.style.borderColor = '';
+      }
+    }
   }
   updateFreeSpinModeUI();
 }
@@ -2475,10 +2825,16 @@ function showWinDisplay(amount, descs) {
   const amtEl = document.getElementById('win-amount');
   const desc = descs.slice(0, 2).join(' · ');
   msgEl.textContent = desc;
-  amtEl.textContent = '+' + amount.toLocaleString() + ' 🪙';
+  amtEl.textContent = '+' + fmt$(amount);
   msgEl.className = 'visible';
   amtEl.className = 'visible';
   updateStreakDisplay();
+  // Update persistent last-win display
+  const lwEl = document.getElementById('last-win-display');
+  if (lwEl) {
+    lwEl.textContent = 'WIN ' + fmt$(amount);
+    lwEl.classList.add('show');
+  }
 }
 
 function clearWinDisplay() {
@@ -2488,8 +2844,13 @@ function clearWinDisplay() {
   document.getElementById('win-amount').textContent = '';
 }
 
+function clearLastWin() {
+  const lwEl = document.getElementById('last-win-display');
+  if (lwEl) lwEl.classList.remove('show');
+}
+
 function clearCellHighlights() {
-  document.querySelectorAll('.reel-cell').forEach(c => c.classList.remove('winning'));
+  document.querySelectorAll('.reel-cell').forEach(c => c.classList.remove('winning', 'wild-stacked'));
   const canvas = document.getElementById('win-line-overlay');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -2498,60 +2859,73 @@ function clearCellHighlights() {
 function drawWinLines(winningPaylines) {
   const canvas = document.getElementById('win-line-overlay');
   const container = document.getElementById('reels-container');
-  canvas.width = container.offsetWidth;
-  canvas.height = container.offsetHeight;
+  const dpr = window.devicePixelRatio || 1;
+  // Size canvas backing store at physical pixel resolution for crisp lines on retina
+  canvas.width  = container.offsetWidth  * dpr;
+  canvas.height = container.offsetHeight * dpr;
+  canvas.style.width  = container.offsetWidth  + 'px';
+  canvas.style.height = container.offsetHeight + 'px';
   const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr); // all drawing coords are now in CSS pixels
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!winningPaylines.length) return;
 
-  const containerRect = container.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
   const lineColors = ['#FFD700','#FF4444','#00FF88','#00BFFF','#FF69B4','#FF8C00','#9B59B6','#FFF176','#7FFFD4'];
 
   winningPaylines.forEach((line, idx) => {
     const color = lineColors[idx % lineColors.length];
     const points = line.map(([reelIdx, rowIdx]) => {
-      const reelEl = document.getElementById('reel-' + reelIdx);
-      const r = reelEl.getBoundingClientRect();
-      const cellH = r.height / NUM_ROWS;
+      const cellEl = document.getElementById(`cell-${reelIdx}-${rowIdx}`);
+      if (!cellEl) return null;
+      const r = cellEl.getBoundingClientRect();
       return {
-        x: r.left - containerRect.left + r.width / 2,
-        y: r.top  - containerRect.top  + rowIdx * cellH + cellH / 2,
+        x: r.left - canvasRect.left + r.width  / 2,
+        y: r.top  - canvasRect.top  + r.height / 2,
       };
-    });
+    }).filter(Boolean);
+    if (points.length < 2) return;
 
-    // Glow pass
+    // Outer glow
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 14;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.shadowColor = color;
-    ctx.shadowBlur = 16;
-    ctx.globalAlpha = 0.45;
+    ctx.shadowBlur = 20;
+    ctx.globalAlpha = 0.35;
     ctx.beginPath();
     points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
     ctx.restore();
 
-    // Solid line pass
+    // Solid line
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.globalAlpha = 0.92;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
+    ctx.globalAlpha = 0.95;
     ctx.beginPath();
     points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
 
-    // Dots at each cell
-    ctx.fillStyle = color;
+    // Dots centered on each winning cell
+    ctx.fillStyle = '#ffffff';
     ctx.shadowColor = color;
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 10;
     points.forEach(p => {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
       ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
     });
     ctx.restore();
   });
@@ -2560,7 +2934,7 @@ function drawWinLines(winningPaylines) {
 function showBigWin(amount, label) {
   const overlay = document.getElementById('bigwin-overlay');
   document.getElementById('bigwin-text').textContent = label;
-  document.getElementById('bigwin-amount').textContent = '+' + amount.toLocaleString() + ' 🪙';
+  document.getElementById('bigwin-amount').textContent = '+' + fmt$(amount);
   overlay.classList.add('active');
   setTimeout(() => overlay.classList.remove('active'), 3000);
 }
@@ -2586,6 +2960,9 @@ function renderHistory() {
 let notifTimer = null;
 function showNotification(icon, text) {
   const el = document.getElementById('notification');
+  // Force a reflow so re-triggering the same notification animates again
+  el.classList.remove('show');
+  void el.offsetWidth;
   document.getElementById('notification-icon').textContent = icon;
   document.getElementById('notification-text').textContent = text;
   el.classList.add('show');
@@ -2696,7 +3073,7 @@ function addCoins() {
   updatePlayerUI();
   soundFreeSpins();
   fireParticles(20, 'win');
-  showNotification('💰', '+1000 coins added! Go wild!');
+  showNotification('💰', '+$1,000 added! Go wild!');
   saveState();
 }
 
