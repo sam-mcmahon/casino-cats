@@ -45,7 +45,7 @@
     overscroll-behavior: none;
   }
 
-  button, .player-btn {
+  button {
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
@@ -81,56 +81,14 @@
   #subtitle { font-size: 0.85rem; color: #FF9944; letter-spacing: 4px; margin-top: -4px; opacity: 0.85; }
 
   /* ===== PLAYERS ===== */
-  #players-bar {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    width: 100%;
-    max-width: 900px;
-    padding: 6px 12px;
-  }
-
-  .player-btn {
-    flex: 1;
-    max-width: 220px;
-    background: var(--panel);
-    border: 2px solid #660000;
-    border-radius: 12px;
-    padding: 6px 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+  #coins-display {
     text-align: center;
-    position: relative;
-    overflow: hidden;
-    /* bigger touch target */
-    min-height: 72px;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    font-weight: 900;
+    color: var(--gold);
+    padding: 4px 0 8px;
+    letter-spacing: 1px;
   }
-
-  .player-btn::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, transparent 40%, rgba(255,180,0,0.05));
-  }
-
-  .player-btn.active {
-    border-color: var(--gold);
-    background: rgba(80,30,0,0.9);
-    box-shadow: 0 0 20px rgba(255,180,0,0.4), inset 0 0 20px rgba(255,150,0,0.1);
-  }
-
-  .player-btn:hover:not(.active) { border-color: #AA4400; }
-
-  .player-name { font-weight: 700; font-size: clamp(0.85rem, 4vw, 1.05rem); color: var(--gold); }
-  .player-avatar { font-size: clamp(1.7rem, 6vw, 2.1rem); display: block; }
-  .player-coins {
-    font-size: clamp(0.82rem, 3.6vw, 0.95rem); color: #FFD060; font-weight: 700;
-    background: rgba(0,0,0,0.3);
-    border-radius: 6px;
-    padding: 2px 5px;
-    margin-top: 2px;
-    display: inline-block;
-  }
-  .player-streak { font-size: 0.7rem; color: #FF6644; margin-top: 1px; min-height: 12px; }
 
   /* ===== JACKPOT ===== */
   #jackpot-bar {
@@ -1088,28 +1046,6 @@
   <div id="subtitle">✨ 幸运爪子 · FORTUNE · FISH · FELINES ✨</div>
 </div>
 
-<!-- PLAYERS -->
-<div id="players-bar">
-  <div class="player-btn active" id="player-btn-0" onclick="switchPlayer(0)">
-    <span class="player-avatar">👩‍🦳</span>
-    <div class="player-name">Ellen</div>
-    <div class="player-coins" id="coins-0">🪙 1,000</div>
-    <div class="player-streak" id="streak-0"></div>
-  </div>
-  <div class="player-btn" id="player-btn-1" onclick="switchPlayer(1)">
-    <span class="player-avatar">👩</span>
-    <div class="player-name">Loren</div>
-    <div class="player-coins" id="coins-1">🪙 1,000</div>
-    <div class="player-streak" id="streak-1"></div>
-  </div>
-  <div class="player-btn" id="player-btn-2" onclick="switchPlayer(2)">
-    <span class="player-avatar">🧑</span>
-    <div class="player-name">You</div>
-    <div class="player-coins" id="coins-2">🪙 1,000</div>
-    <div class="player-streak" id="streak-2"></div>
-  </div>
-</div>
-
 <!-- JACKPOT -->
 <div id="jackpot-bar">
   <div id="jackpot-display">
@@ -1149,6 +1085,9 @@
       <div id="win-message"></div>
       <div id="win-amount"></div>
     </div>
+
+    <!-- COINS DISPLAY -->
+    <div id="coins-display">🪙 <span id="player-coins">2,000</span></div>
 
     <!-- CONTROLS -->
     <div id="controls">
@@ -1407,12 +1346,7 @@ const SAVE_KEY = 'luckypaws_v2';
 
 function defaultState() {
   return {
-    players: [
-      { name: 'Ellen', avatar: '👩‍🦳', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
-      { name: 'Loren', avatar: '👩', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
-      { name: 'You',   avatar: '🧑', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
-    ],
-    currentPlayer: 0,
+    player: { name: 'Lucky Player', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
     jackpot: 10000,
     bet: 5,
     globalSpins: 0,
@@ -1427,14 +1361,20 @@ function loadState() {
     const saved = localStorage.getItem(SAVE_KEY);
     if (saved) {
       const s = JSON.parse(saved);
-      // merge to avoid missing keys on schema changes
-      state.players = s.players || state.players;
+      // migrate old multi-player format
+      if (s.players) {
+        state.player = s.players[s.currentPlayer || 0] || state.player;
+      } else {
+        state.player = s.player || state.player;
+      }
       // backfill new per-player fields for older saves
-      state.players.forEach(p => {
-        if (p.keys == null) p.keys = 0;
-        if (p.vaultOpens == null) p.vaultOpens = 0;
-      });
-      state.currentPlayer = s.currentPlayer || 0;
+      if (state.player.keys == null) state.player.keys = 0;
+      if (state.player.vaultOpens == null) state.player.vaultOpens = 0;
+      if (state.player.achievements == null) state.player.achievements = [];
+      if (state.player.totalWon == null) state.player.totalWon = 0;
+      if (state.player.totalSpins == null) state.player.totalSpins = 0;
+      if (state.player.bigWins == null) state.player.bigWins = 0;
+      if (state.player.consecutiveWins == null) state.player.consecutiveWins = 0;
       state.jackpot = s.jackpot || 10000;
       state.bet = s.bet || 5;
       state.globalSpins = s.globalSpins || 0;
@@ -1523,12 +1463,12 @@ function buildAchievements() {
 }
 
 function isAchievementUnlocked(ach) {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   return p.achievements && p.achievements.includes(ach.id);
 }
 
 function checkAchievements() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   if (!p.achievements) p.achievements = [];
   ACHIEVEMENTS.forEach(a => {
     if (!p.achievements.includes(a.id) && a.check(p, sessionStats)) {
@@ -1572,7 +1512,7 @@ let spinTimers = [];
 function spin() {
   if (isSpinning) return;
 
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   const cost = freeSpins > 0 ? 0 : state.bet * PAYLINES.length;
 
   if (freeSpins <= 0 && p.coins < cost) {
@@ -1600,7 +1540,7 @@ function spin() {
 
   p.totalSpins++;
   state.globalSpins++;
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   clearWinDisplay();
   clearCellHighlights();
 
@@ -1644,7 +1584,7 @@ function spin() {
 }
 
 function evaluateResult() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   const bet = state.bet;
   let totalWin = 0;
   const winningCells = new Set();
@@ -1746,7 +1686,7 @@ function evaluateResult() {
   // Earn Dragon Vault keys on paid spins (small chance) — builds toward grand feature
   if (!lastSpinWasFree) maybeAwardKey();
 
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   checkAchievements();
   saveState();
 
@@ -1834,7 +1774,7 @@ function finishSpin() {
 
   // Auto-spin only applies to normal paid spins
   if (autoSpin) {
-    const p = state.players[state.currentPlayer];
+    const p = state.player;
     const cost = state.bet * PAYLINES.length;
     if (p.coins >= cost) {
       autoSpinTimer = setTimeout(() => spin(), 600);
@@ -1861,13 +1801,13 @@ function updateFreeSpinModeUI() {
 
 // ===== JACKPOT =====
 function triggerJackpot() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   const prize = state.jackpot;
   p.coins += prize;
   state.jackpot = 10000;
   sessionStats.jackpotHits++;
   updateJackpotDisplay();
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   soundJackpot();
   showBigWin(prize, '🏆 JACKPOT! 🏆');
   fireParticles(150, 'jackpot');
@@ -1908,7 +1848,7 @@ function maybeAwardKey() {
 }
 
 function awardKey(n, fromBonus) {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   if ((p.keys || 0) >= KEYS_NEEDED) return; // already full, waiting to open
   p.keys = Math.min(KEYS_NEEDED, (p.keys || 0) + n);
   soundCoin();
@@ -1925,7 +1865,7 @@ function awardKey(n, fromBonus) {
 }
 
 function updateVaultBar() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   const keys = p.keys || 0;
   const fill = document.getElementById('vault-fill');
   const txt = document.getElementById('vault-keys-text');
@@ -1939,7 +1879,7 @@ function updateVaultBar() {
 
 // Tapping the bar when full opens the vault (in case it's between spins)
 function vaultBarClicked() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   if ((p.keys || 0) >= KEYS_NEEDED && !isSpinning && !document.getElementById('minigame-overlay').classList.contains('active')) {
     vaultReady = false;
     triggerGrandVault();
@@ -1948,7 +1888,7 @@ function vaultBarClicked() {
 
 // The GRAND feature: pick treasure tiles to build a pot until a Dragon seals it.
 function triggerGrandVault() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   p.keys = 0;
   updateVaultBar();
   window._isVaultGame = true;
@@ -1986,7 +1926,7 @@ function triggerGrandVault() {
   window._vaultPot = starter;
   window._vaultDone = false;
   p.coins += starter;
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   const potEl = document.getElementById('vault-pot');
   if (potEl) potEl.textContent = 'POT: ' + starter.toLocaleString() + ' 🪙';
 
@@ -2004,7 +1944,7 @@ window.pickVaultTile = function(idx) {
   const btn = document.getElementById('vtile-' + idx);
   if (!btn || btn.classList.contains('revealed')) return;
   btn.classList.add('revealed');
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   const bet = state.bet;
 
   if (t.type === 'coin') {
@@ -2016,7 +1956,7 @@ window.pickVaultTile = function(idx) {
     haptic('light');
     fireParticles(12, 'win');
     document.getElementById('vault-pot').textContent = 'POT: ' + window._vaultPot.toLocaleString() + ' 🪙';
-    updatePlayerUI(state.currentPlayer);
+    updatePlayerUI();
     saveState();
   } else if (t.type === 'grand') {
     btn.classList.add('grand');
@@ -2051,8 +1991,8 @@ function endVault(grand) {
     }
   });
   const pot = window._vaultPot || 0;
-  const p = state.players[state.currentPlayer];
-  updatePlayerUI(state.currentPlayer);
+  const p = state.player;
+  updatePlayerUI();
   document.getElementById('minigame-result').innerHTML = grand
     ? `<span style="color:#FFD700">👑 GRAND VAULT! Won <b>${pot.toLocaleString()}</b> coins!</span>`
     : `<span style="color:#FFD700">🐉 Vault sealed! You banked <b>${pot.toLocaleString()}</b> coins!</span>`;
@@ -2092,9 +2032,9 @@ window.pickCat = function(idx, multiplier, bet) {
     }
   });
 
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   p.coins += prize;
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   soundBigWin();
   fireParticles(40, 'win');
 
@@ -2134,9 +2074,9 @@ function triggerFishFrenzy() {
       fishEarned += value;
       soundCoin();
       haptic('light');
-      const p = state.players[state.currentPlayer];
+      const p = state.player;
       p.coins += value;
-      updatePlayerUI(state.currentPlayer);
+      updatePlayerUI();
       const label = document.createElement('div');
       label.style.cssText = `position:absolute;color:#FFD700;font-size:1rem;font-weight:700;pointer-events:none;animation:fishCaught 0.8s ease forwards;left:${fish.style.left};top:${fish.style.top}`;
       label.textContent = '+' + value;
@@ -2255,9 +2195,9 @@ window.spinFortuneWheel = function(bet) {
   setTimeout(() => {
     const prize = WHEEL_PRIZES[winIdx];
     const winAmount = prize.multiplier * bet;
-    const p = state.players[state.currentPlayer];
+    const p = state.player;
     p.coins += winAmount;
-    updatePlayerUI(state.currentPlayer);
+    updatePlayerUI();
 
     if (prize.multiplier > 0) {
       soundBigWin();
@@ -2303,7 +2243,7 @@ window.pickEgg = function(idx) {
   const prizes = window._eggPrizes;
   const dragons = window._eggDragons;
   const bet = window._eggBet;
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
 
   [0, 1, 2].forEach(i => {
     const btn = document.getElementById('egg-btn-' + i);
@@ -2319,7 +2259,7 @@ window.pickEgg = function(idx) {
 
   const prize = prizes[idx] * bet;
   p.coins += prize;
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   soundBigWin();
   haptic('heavy');
   fireParticles(45, 'jackpot');
@@ -2365,9 +2305,9 @@ function triggerHongbaoRain() {
       earned += val;
       soundCoin();
       haptic('light');
-      const p = state.players[state.currentPlayer];
+      const p = state.player;
       p.coins += val;
-      updatePlayerUI(state.currentPlayer);
+      updatePlayerUI();
       const lbl = document.createElement('div');
       lbl.style.cssText = `position:absolute;color:#FFD700;font-weight:700;font-size:0.9rem;pointer-events:none;left:${el.style.left};top:${el.style.top};animation:fishCaught 0.7s ease forwards`;
       lbl.textContent = '+' + val;
@@ -2459,7 +2399,7 @@ window.startCrabRace = function(yourCrabIdx, bet) {
     if (Math.max(...positions) >= 100) {
       stopCrabRace();
 
-      const p = state.players[state.currentPlayer];
+      const p = state.player;
       const isWin = winner === yourCrabIdx;
       const prize = isWin ? bet * 10 : 0;
 
@@ -2472,7 +2412,7 @@ window.startCrabRace = function(yourCrabIdx, bet) {
         soundLose();
       }
 
-      updatePlayerUI(state.currentPlayer);
+      updatePlayerUI();
       document.getElementById('minigame-result').innerHTML = isWin
         ? `<span style="color:#FFD700">🦀 YOUR CRAB WINS! +${prize} coins!</span>`
         : `<span style="color:#FF4444">🦀 Better luck next time! CPU wins!</span>`;
@@ -2485,7 +2425,7 @@ window.startCrabRace = function(yourCrabIdx, bet) {
 
 // ===== UI UPDATES =====
 function updateAllUI() {
-  for (let i = 0; i < 3; i++) updatePlayerUI(i);
+  updatePlayerUI();
   updateJackpotDisplay();
   buildAchievements();
   updateBetButtons();
@@ -2493,15 +2433,9 @@ function updateAllUI() {
   updateVaultBar();
 }
 
-function updatePlayerUI(idx) {
-  const p = state.players[idx];
-  document.getElementById('coins-' + idx).textContent = '🪙 ' + p.coins.toLocaleString();
-  const streakEl = document.getElementById('streak-' + idx);
-  if (p.consecutiveWins >= 3) {
-    streakEl.textContent = '🔥'.repeat(Math.min(p.consecutiveWins, 5)) + ' HOT!';
-  } else {
-    streakEl.textContent = '';
-  }
+function updatePlayerUI() {
+  const p = state.player;
+  document.getElementById('player-coins').textContent = p.coins.toLocaleString();
 }
 
 function updateJackpotDisplay() {
@@ -2633,7 +2567,7 @@ function showBigWin(amount, label) {
 
 // ===== HISTORY =====
 function addHistory(win, bet) {
-  const item = { win, bet, player: state.players[state.currentPlayer].name };
+  const item = { win, bet, player: state.player.name };
   history.unshift(item);
   if (history.length > 20) history.pop();
   renderHistory();
@@ -2731,14 +2665,6 @@ function animParticles() {
 }
 
 // ===== CONTROLS =====
-function switchPlayer(idx) {
-  if (isSpinning) return;
-  state.currentPlayer = idx;
-  document.querySelectorAll('.player-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-  updateAllUI();
-  saveState();
-}
-
 function setBet(amount) {
   if (isSpinning) return;
   state.bet = amount;
@@ -2765,9 +2691,9 @@ function toggleSound() {
 }
 
 function addCoins() {
-  const p = state.players[state.currentPlayer];
+  const p = state.player;
   p.coins += 1000;
-  updatePlayerUI(state.currentPlayer);
+  updatePlayerUI();
   soundFreeSpins();
   fireParticles(20, 'win');
   showNotification('💰', '+1000 coins added! Go wild!');
@@ -2786,13 +2712,13 @@ let touchStartY = 0;
 let touchStartX = 0;
 document.addEventListener('touchstart', e => {
   // Don't intercept taps on buttons/overlays
-  if (e.target.closest('button, .player-btn, #minigame-overlay, #bigwin-overlay')) return;
+  if (e.target.closest('button, #minigame-overlay, #bigwin-overlay')) return;
   touchStartY = e.touches[0].clientY;
   touchStartX = e.touches[0].clientX;
 }, { passive: true });
 
 document.addEventListener('touchend', e => {
-  if (e.target.closest('button, .player-btn, #minigame-overlay, #bigwin-overlay')) return;
+  if (e.target.closest('button, #minigame-overlay, #bigwin-overlay')) return;
   const dy = e.changedTouches[0].clientY - touchStartY;
   const dx = e.changedTouches[0].clientX - touchStartX;
   // Swipe down to spin
@@ -2804,9 +2730,6 @@ document.addEventListener('touchend', e => {
 // Keyboard shortcut
 document.addEventListener('keydown', e => {
   if (e.code === 'Space' && !isSpinning) { e.preventDefault(); spin(); }
-  if (e.key === '1') switchPlayer(0);
-  if (e.key === '2') switchPlayer(1);
-  if (e.key === '3') switchPlayer(2);
 });
 
 // Jackpot slowly increments
