@@ -89,7 +89,19 @@
     padding: 4px 0 6px;
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(255,200,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 12px;
   }
+  #last-win-display {
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+    color: #00FF88;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #last-win-display.show { opacity: 1; }
 
   /* ===== JACKPOT ===== */
   #jackpot-bar {
@@ -1199,7 +1211,10 @@
     </div>
 
     <!-- COINS DISPLAY -->
-    <div id="coins-display"><span id="player-coins">$2,000</span></div>
+    <div id="coins-display">
+      <span id="player-coins">$2,000</span>
+      <span id="last-win-display"></span>
+    </div>
 
     <!-- CONTROLS -->
     <div id="controls">
@@ -1212,7 +1227,8 @@
           <button class="bet-btn" onclick="setBet(50)" data-bet="50">$50</button>
           <button class="bet-btn" onclick="setBet(100)" data-bet="100">MAX</button>
         </div>
-        <div class="control-label" style="margin-top:4px">LINES: <span id="lines-display">9</span></div>
+        <div class="control-label" style="margin-top:4px">LINES: <span id="lines-display">12</span></div>
+        <div class="control-label" style="margin-top:2px; color: rgba(255,220,100,0.85)">TOTAL: <span id="total-bet-display">$60</span></div>
       </div>
 
       <button id="spin-btn" onclick="spin()">
@@ -1271,8 +1287,9 @@
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v1.8 · Lucky Paws Casino</summary>
+    <summary>v1.9 · Lucky Paws Casino</summary>
     <div id="changelog">
+      <b>v1.9</b> — Win lines crisp on retina (DPR-scaled canvas), win description shows wild involvement (🐙+🔮×3), total bet display (bet×lines), persistent last-win amount in balance bar<br>
       <b>v1.8</b> — Rebalanced symbols back to cat theme: replaced crab/pufferfish/shrimp/butterfly with 😸 Happy Neko, 🐾 Lucky Paw, 🏮 Red Lantern, 🔔 Lucky Bell. Paw Race replaces Crab Race (🐱 cats run!), Happy Neko triggers Dragon Egg<br>
       <b>v1.7</b> — Dollar currency display, win line alignment fix (dead space removed), wild stacking (2+ wilds = full reel wild), Dragon Stampede bonus (🌙×3 → multiplying free spins), dragon decoration removed<br>
       <b>v1.6</b> — 14 symbols (added Moon 🌙, Butterfly 🦋, Shrimp 🍤), WILD badge on Octopus cells, mini games now require 3+ of symbol on a payline, Dragon Egg fully random prize pool with Fisher-Yates shuffle, version footer visible on mobile<br>
@@ -1689,6 +1706,7 @@ function spin() {
   state.globalSpins++;
   updatePlayerUI();
   clearWinDisplay();
+  clearLastWin();
   clearCellHighlights();
 
   // Start spinning all reels
@@ -1970,11 +1988,13 @@ function evaluateLine(lineSymbols, bet) {
   // Find longest run from left, treating wilds as any symbol
   let baseSymbol = -1;
   let runLen = 0;
+  let wildCount = 0;
 
   for (let i = 0; i < lineSymbols.length; i++) {
     const s = SYMBOLS[lineSymbols[i]];
     if (s.isWild) {
       runLen++;
+      wildCount++;
       continue;
     }
     if (baseSymbol === -1) {
@@ -1996,7 +2016,9 @@ function evaluateLine(lineSymbols, bet) {
   if (!sym) return { amount: 0 };
 
   const payout = sym.values[runLen] * bet;
-  return { amount: payout, desc: `${sym.emoji}×${runLen} = ${payout}` };
+  // Show wild involvement in description so it's clear how the win was formed
+  const prefix = wildCount > 0 ? `🐙+` : '';
+  return { amount: payout, desc: `${prefix}${sym.emoji}×${runLen} = ${fmt$(payout)}` };
 }
 
 function finishSpin() {
@@ -2749,6 +2771,8 @@ function updateBetButtons() {
   document.querySelectorAll('.bet-btn').forEach(btn => {
     btn.classList.toggle('active', parseInt(btn.dataset.bet) === state.bet);
   });
+  const totalEl = document.getElementById('total-bet-display');
+  if (totalEl) totalEl.textContent = fmt$(state.bet * PAYLINES.length);
 }
 
 function updateStreakDisplay() {
@@ -2794,6 +2818,12 @@ function showWinDisplay(amount, descs) {
   msgEl.className = 'visible';
   amtEl.className = 'visible';
   updateStreakDisplay();
+  // Update persistent last-win display
+  const lwEl = document.getElementById('last-win-display');
+  if (lwEl) {
+    lwEl.textContent = 'WIN ' + fmt$(amount);
+    lwEl.classList.add('show');
+  }
 }
 
 function clearWinDisplay() {
@@ -2801,6 +2831,11 @@ function clearWinDisplay() {
   document.getElementById('win-amount').className = '';
   document.getElementById('win-message').textContent = '';
   document.getElementById('win-amount').textContent = '';
+}
+
+function clearLastWin() {
+  const lwEl = document.getElementById('last-win-display');
+  if (lwEl) lwEl.classList.remove('show');
 }
 
 function clearCellHighlights() {
@@ -2813,9 +2848,14 @@ function clearCellHighlights() {
 function drawWinLines(winningPaylines) {
   const canvas = document.getElementById('win-line-overlay');
   const container = document.getElementById('reels-container');
-  canvas.width = container.offsetWidth;
-  canvas.height = container.offsetHeight;
+  const dpr = window.devicePixelRatio || 1;
+  // Size canvas backing store at physical pixel resolution for crisp lines on retina
+  canvas.width  = container.offsetWidth  * dpr;
+  canvas.height = container.offsetHeight * dpr;
+  canvas.style.width  = container.offsetWidth  + 'px';
+  canvas.style.height = container.offsetHeight + 'px';
   const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr); // all drawing coords are now in CSS pixels
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!winningPaylines.length) return;
 
@@ -2826,47 +2866,55 @@ function drawWinLines(winningPaylines) {
     const color = lineColors[idx % lineColors.length];
     const points = line.map(([reelIdx, rowIdx]) => {
       const cellEl = document.getElementById(`cell-${reelIdx}-${rowIdx}`);
-      if (!cellEl) return { x: 0, y: 0 };
+      if (!cellEl) return null;
       const r = cellEl.getBoundingClientRect();
       return {
-        x: r.left - canvasRect.left + r.width / 2,
+        x: r.left - canvasRect.left + r.width  / 2,
         y: r.top  - canvasRect.top  + r.height / 2,
       };
-    });
+    }).filter(Boolean);
+    if (points.length < 2) return;
 
-    // Glow pass
+    // Outer glow
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 14;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.shadowColor = color;
-    ctx.shadowBlur = 16;
-    ctx.globalAlpha = 0.45;
+    ctx.shadowBlur = 20;
+    ctx.globalAlpha = 0.35;
     ctx.beginPath();
     points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
     ctx.restore();
 
-    // Solid line pass
+    // Solid line
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.globalAlpha = 0.92;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
+    ctx.globalAlpha = 0.95;
     ctx.beginPath();
     points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
 
-    // Dots at each cell
-    ctx.fillStyle = color;
+    // Dots centered on each winning cell
+    ctx.fillStyle = '#ffffff';
     ctx.shadowColor = color;
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 10;
     points.forEach(p => {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
       ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
     });
     ctx.restore();
   });
