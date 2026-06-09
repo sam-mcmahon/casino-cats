@@ -42,7 +42,7 @@
     /* iOS safe areas */
     padding-bottom: env(safe-area-inset-bottom);
     touch-action: pan-y;
-    overscroll-behavior: none;
+    overscroll-behavior-x: none;
   }
 
   button {
@@ -326,6 +326,23 @@
     background: radial-gradient(ellipse, rgba(255,220,0,0.3) 0%, transparent 70%) !important;
     animation: cellWin 0.4s ease-in-out infinite alternate;
   }
+
+  .wild-badge {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.42rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+    background: linear-gradient(90deg, #9B59B6, #C44CFF);
+    border-radius: 3px;
+    padding: 1px 4px;
+    pointer-events: none;
+    line-height: 1.4;
+  }
+  .reel-cell { position: relative; }
 
   @keyframes cellWin {
     from { transform: scale(1); filter: brightness(1); }
@@ -1064,6 +1081,8 @@
     #info-panel { display: none; }
     #achievements-panel { display: none; }
     #history-panel { display: none; }
+    /* Version footer: keep visible but ultra-compact */
+    #version-footer { padding: 4px 16px 12px; }
   }
 
   /* ===== VERSION FOOTER ===== */
@@ -1224,7 +1243,8 @@
       <div>🐠×5 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
       <div>🔮×3 <b style="color:#FFD700">FORTUNE WHEEL</b> – Spin for riches!</div>
       <div>🦀×5 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
-      <div>🐙 = <b style="color:#9B59B6">WILD</b> · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🐙 = <b style="color:#9B59B6">WILD</b> (sub any symbol) · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🌙 <b style="color:#C8A8FF">LUCKY MOON</b> – rare high-value symbol</div>
       <div>🌸×4 <b style="color:#00FF88">FREE SPINS</b> · 🔥 <b style="color:#FF6644">HOT STREAK</b></div>
     </div>
   </div>
@@ -1245,8 +1265,9 @@
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v1.5 · Lucky Paws Casino</summary>
+    <summary>v1.6 · Lucky Paws Casino</summary>
     <div id="changelog">
+      <b>v1.6</b> — 14 symbols (added Moon 🌙, Butterfly 🦋, Shrimp 🍤), WILD badge on Octopus cells, mini games now require 3+ of symbol on a payline, Dragon Egg fully random prize pool with Fisher-Yates shuffle, version footer visible on mobile<br>
       <b>v1.5</b> — Mobile layout fix (spin button always visible), Dragon Egg real variance, mini game combo trigger banners, hot streak/notification ghost fixes, bottom artifact removed, win frequency reduced<br>
       <b>v1.4</b> — Remove multi-player profiles, single player with compact coins display<br>
       <b>v1.3</b> — 5×4 reel grid, Dragon Vault grand feature, free spins manual press, crab race fix, larger mobile UI, Dragon Egg + Red Envelope Rain mini games, Ocean Frenzy rename, 12 paylines<br>
@@ -1393,24 +1414,26 @@ function soundFreeSpins() {
 
 // ===== SYMBOLS =====
 const SYMBOLS = [
-  { id: 'cat',      emoji: '🐱', name: 'Lucky Neko',     values: [0,0,75,300,1500], rarity: 1,  color: '#FFD700', isScatter: true },
-  { id: 'diamond',  emoji: '💎', name: 'Fortune Diamond', values: [0,0,40,150,600],  rarity: 2,  color: '#00BFFF' },
-  { id: 'octopus',  emoji: '🐙', name: 'Octopus Wild',   values: [0,0,35,120,400],  rarity: 3,  color: '#9B59B6', isWild: true },
-  { id: 'dragon',   emoji: '🐉', name: 'Lucky Dragon',   values: [0,0,25,90,300],   rarity: 4,  color: '#E74C3C' },
-  { id: 'fortune',  emoji: '🔮', name: 'Fortune Orb',    values: [0,0,20,70,200],   rarity: 5,  color: '#8E44AD' },
-  { id: 'hongbao',  emoji: '🧧', name: 'Red Envelope',   values: [0,0,15,50,150],   rarity: 6,  color: '#FF4444' },
-  { id: 'clownfish',emoji: '🐠', name: 'Clownfish',      values: [0,0,12,40,120],   rarity: 7,  color: '#FF8C00' },
-  { id: 'crab',     emoji: '🦀', name: 'Lucky Crab',     values: [0,0,8,28,80],     rarity: 8,  color: '#E74C3C' },
-  { id: 'pufferfish',emoji: '🐡',name: 'Pufferfish',     values: [0,0,6,20,55],     rarity: 9,  color: '#3498DB' },
-  { id: 'blossom',  emoji: '🌸', name: 'Cherry Blossom', values: [0,0,4,14,40],     rarity: 10, color: '#FF69B4', isScatter2: true },
-  { id: 'coin',     emoji: '🪙', name: 'Fortune Coin',   values: [0,0,2,8,20],      rarity: 11, color: '#F1C40F' },
+  { id: 'cat',       emoji: '🐱', name: 'Lucky Neko',      values: [0,0,75,300,1500], rarity: 1,  color: '#FFD700', isScatter: true },
+  { id: 'moon',      emoji: '🌙', name: 'Lucky Moon',       values: [0,0,50,180,700],  rarity: 2,  color: '#C8A8FF' },
+  { id: 'diamond',   emoji: '💎', name: 'Fortune Diamond',  values: [0,0,40,150,600],  rarity: 3,  color: '#00BFFF' },
+  { id: 'octopus',   emoji: '🐙', name: 'Octopus Wild',    values: [0,0,35,120,400],  rarity: 4,  color: '#9B59B6', isWild: true },
+  { id: 'dragon',    emoji: '🐉', name: 'Lucky Dragon',    values: [0,0,25,90,300],   rarity: 5,  color: '#E74C3C' },
+  { id: 'fortune',   emoji: '🔮', name: 'Fortune Orb',     values: [0,0,20,70,200],   rarity: 6,  color: '#8E44AD' },
+  { id: 'hongbao',   emoji: '🧧', name: 'Red Envelope',    values: [0,0,15,50,150],   rarity: 7,  color: '#FF4444' },
+  { id: 'clownfish', emoji: '🐠', name: 'Clownfish',       values: [0,0,12,40,120],   rarity: 8,  color: '#FF8C00' },
+  { id: 'crab',      emoji: '🦀', name: 'Lucky Crab',      values: [0,0,8,28,80],     rarity: 9,  color: '#E74C3C' },
+  { id: 'butterfly', emoji: '🦋', name: 'Lucky Butterfly',  values: [0,0,7,22,65],     rarity: 10, color: '#FF69B4' },
+  { id: 'pufferfish',emoji: '🐡', name: 'Pufferfish',      values: [0,0,6,20,55],     rarity: 11, color: '#3498DB' },
+  { id: 'blossom',   emoji: '🌸', name: 'Cherry Blossom',  values: [0,0,4,14,40],     rarity: 12, color: '#FF69B4', isScatter2: true },
+  { id: 'shrimp',    emoji: '🍤', name: 'Lucky Shrimp',    values: [0,0,3,10,28],     rarity: 13, color: '#FF8C44' },
+  { id: 'coin',      emoji: '🪙', name: 'Fortune Coin',    values: [0,0,2,8,20],      rarity: 14, color: '#F1C40F' },
 ];
 
-// Weighted reel symbols (higher rarity = less frequent)
-// coin/pufferfish weighted high but pay very little — creates near-miss feel without
-// big wins every spin. Added blank weight via extra coin entries.
-// blossom lowered to keep free spins rare.
-const REEL_WEIGHTS = [1, 2, 2, 3, 3, 4, 5, 6, 8, 3, 14];
+// Parallel weight array — more symbols means more variety and fewer matching runs
+// moon/diamond/octopus rare; coin/shrimp/pufferfish common (near-miss fillers)
+// blossom kept low so free spins stay special
+const REEL_WEIGHTS = [1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 3, 8, 14];
 
 const NUM_ROWS = 4; // 5 reels x 4 rows
 
@@ -1605,7 +1628,12 @@ function renderReel(reelIndex) {
     const cell = document.createElement('div');
     cell.className = 'reel-cell';
     cell.id = `cell-${reelIndex}-${rowIdx}`;
-    cell.textContent = SYMBOLS[symIdx].emoji;
+    const sym = SYMBOLS[symIdx];
+    if (sym.isWild) {
+      cell.innerHTML = `${sym.emoji}<span class="wild-badge">WILD</span>`;
+    } else {
+      cell.textContent = sym.emoji;
+    }
     strip.appendChild(cell);
   });
 }
@@ -1707,13 +1735,26 @@ function evaluateResult() {
     }
   });
 
-  // Check scatter (cats anywhere)
+  // Scatters count anywhere on grid (their whole purpose)
   const flat = reelSymbols.flat();
   const catCount     = flat.filter(s => SYMBOLS[s].isScatter).length;
   const blossomCount = flat.filter(s => SYMBOLS[s].isScatter2).length;
-  const fortuneCount = flat.filter(s => SYMBOLS[s].id === 'fortune').length;
-  const crabCount    = flat.filter(s => SYMBOLS[s].id === 'crab').length;
-  const fishCount    = flat.filter(s => SYMBOLS[s].id === 'clownfish').length;
+
+  // Non-scatter mini game triggers: require a run of 3+ on the SAME payline
+  // This makes them feel earned — you see the symbols line up
+  function maxOnLine(symbolId) {
+    return PAYLINES.reduce((max, line) => {
+      const count = line.filter(([r, row]) => SYMBOLS[reelSymbols[r][row]].id === symbolId).length;
+      return Math.max(max, count);
+    }, 0);
+  }
+  const dragonOnLine  = maxOnLine('dragon');
+  const fortuneOnLine = maxOnLine('fortune');
+  const hongbaoOnLine = maxOnLine('hongbao');
+  const fishOnLine    = maxOnLine('clownfish');
+  const crabOnLine    = maxOnLine('crab');
+
+  // Keep flat counts for stat tracking only
   const dragonCount  = flat.filter(s => SYMBOLS[s].id === 'dragon').length;
   const hongbaoCount = flat.filter(s => SYMBOLS[s].id === 'hongbao').length;
 
@@ -1802,12 +1843,12 @@ function evaluateResult() {
   let triggerFn = null;
   let triggerLabel = null;
 
-  if (catCount >= 3)            { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
-  else if (dragonCount >= 3)    { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonCount} DRAGONS!`; }
-  else if (hongbaoCount >= 4)   { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoCount} ENVELOPES!`; }
-  else if (fishCount >= 5)      { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishCount} SEA CREATURES!`; }
-  else if (fortuneCount >= 3)   { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneCount} FORTUNE ORBS!`; }
-  else if (crabCount >= 5)      { triggerFn = () => triggerCrabRace();     triggerLabel = `🦀×${crabCount} CRABS!`; }
+  if (catCount >= 3)             { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
+  else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
+  else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
+  else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
+  else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
+  else if (crabOnLine >= 3)     { triggerFn = () => triggerCrabRace();     triggerLabel = `🦀×${crabOnLine} ON A LINE!`; }
   else if (blossomCount >= 4)   {
     triggerLabel = `🌸×${blossomCount} BLOSSOM!`;
     triggerFn = () => {
@@ -2358,29 +2399,36 @@ window.spinFortuneWheel = function(bet) {
 // DRAGON EGG
 function triggerDragonEgg() {
   const bet = state.bet;
-  // Wide prize variance: one big egg, one medium, one dud — shuffled randomly
-  const allPrizes = [
-    { mult: 2, label: '😴 Sleeping...', emoji: '🐣', small: true },
-    { mult: 5, label: '🐲 Baby Dragon!', emoji: '🐲', small: false },
-    { mult: 3, label: '🦎 Lizard...', emoji: '🦎', small: true },
-    { mult: 15, label: '🐉 GREAT DRAGON!', emoji: '🐉', small: false },
-    { mult: 30, label: '🔥 LEGENDARY!', emoji: '🐉', small: false },
-    { mult: 1, label: '💨 Empty...', emoji: '🥚', small: true },
-    { mult: 8, label: '🐲 Dragon Hatchling!', emoji: '🐲', small: false },
-    { mult: 20, label: '🐉 RARE DRAGON!', emoji: '🐉', small: false },
+  // Full prize pool — truly random, no category guarantees
+  // Weighted so duds are more likely, big prizes are rare
+  const pool = [
+    { mult: 1,  label: '💨 Empty shell...', emoji: '🥚',  w: 10 },
+    { mult: 2,  label: '😴 Sleeping...',    emoji: '🐣',  w: 12 },
+    { mult: 3,  label: '🦎 Just a lizard',  emoji: '🦎',  w: 10 },
+    { mult: 5,  label: '🐲 Baby Dragon!',   emoji: '🐲',  w: 8  },
+    { mult: 8,  label: '🐲 Dragon Hatchling!', emoji: '🐲', w: 6 },
+    { mult: 15, label: '🐉 GREAT DRAGON!',  emoji: '🐉',  w: 4  },
+    { mult: 25, label: '🔥 RARE DRAGON!',   emoji: '🐉',  w: 2  },
+    { mult: 50, label: '👑 LEGENDARY!',     emoji: '🐉',  w: 1  },
   ];
-  // Pick 3: bias toward one good, one mid, one dud
-  const big = allPrizes.filter(p => p.mult >= 15);
-  const mid = allPrizes.filter(p => p.mult >= 5 && p.mult < 15);
-  const dud = allPrizes.filter(p => p.mult < 5);
-  const pick3 = [
-    big[Math.floor(Math.random() * big.length)],
-    mid[Math.floor(Math.random() * mid.length)],
-    dud[Math.floor(Math.random() * dud.length)],
-  ].sort(() => Math.random() - 0.5);
+  function wPick() {
+    const total = pool.reduce((s, p) => s + p.w, 0);
+    let r = Math.random() * total;
+    for (const p of pool) { r -= p.w; if (r <= 0) return p; }
+    return pool[pool.length - 1];
+  }
+  // Pick 3 independently — could be all duds or all big
+  const pick3 = [wPick(), wPick(), wPick()];
+  // Fisher-Yates shuffle positions
+  for (let i = 2; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pick3[i], pick3[j]] = [pick3[j], pick3[i]];
+  }
 
   const eggColors = ['#E74C3C', '#9B59B6', '#F1C40F'];
-  const sizes = ['2.6rem','3rem','2.8rem'].sort(() => Math.random() - 0.5);
+  // Randomize sizes independently
+  const sizes = ['2.4rem','3rem','2.7rem'];
+  for (let i = 2; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [sizes[i],sizes[j]]=[sizes[j],sizes[i]]; }
 
   const eggs = [0, 1, 2].map(i => `
     <button class="mg-btn" id="egg-btn-${i}" onclick="pickEgg(${i})"
