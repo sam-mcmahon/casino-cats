@@ -6,32 +6,116 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Lucky Paws">
-<meta name="theme-color" content="#0d0202">
+<meta name="theme-color" content="#0E0312">
 <title>🐱 Lucky Paws Casino 🎰</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@400;500;700&display=swap');
 
   :root {
+    /* ===== NEON GOLD THEME TOKENS — v2.0 visual identity. Repaint the game by editing these. ===== */
+    --font-display: 'Audiowide', 'Chakra Petch', sans-serif;
+    --font-body: 'Chakra Petch', Arial, sans-serif;
     --gold: #FFD700;
     --gold2: #FFA500;
-    --red: #CC0000;
-    --red2: #FF3333;
-    --jade: #00A86B;
-    --dark: #1a0505;
-    --darker: #0d0202;
-    --panel: rgba(30,5,5,0.92);
-    --text: #FFE0A0;
+    --red: #D40F5E;
+    --red2: #FF3D7E;
+    --jade: #00FF9D;
+    --dark: #1C0820;
+    --darker: #0E0312;
+    --panel: rgba(28,10,34,0.92);
+    --text: #FFE0B8;
+    --accent-deep: #FF8C00;
+    --accent-pale: #FFF176;
+    --accent-soft: #FFD060;
+    --accent-mid: #FFB84D;
+    --label: #FF8FB8;
+    --hot-text: #FF3D7E;
+    --loss-text: #FF5C7A;
+    --border-subtle: #2E1038;
+    --border-mid: #3E1650;
+    --border-strong: #5A2070;
+    --btn2-border: #4A1656;
+    --reel-area-bg: #0A0312;
+    --frame-edge1: #4A1860;
+    --frame-edge2: #32104A;
+    --spin-edge: #5C0830;
+    --pond-border: #00AEEF;
+    --gold-rgb: 255,215,0;
+    --glow1-rgb: 255,180,0;
+    --glow2-rgb: 255,45,120;
+    --red-rgb: 120,0,90;
+    --free-rgb: 0,255,136;
+    --free2-rgb: 0,180,80;
+    --vault-rgb: 180,76,255;
+    --vault2-rgb: 214,123,255;
+    --textsoft-rgb: 255,175,135;
+    --textwarm-rgb: 255,210,180;
+    --divider-rgb: 90,20,80;
+    --warmdeep-rgb: 110,30,95;
+    --chip-rgb: 200,60,140;
+    --track-rgb: 100,30,90;
+    --laneyou-rgb: 80,30,80;
+    --achun-rgb: 60,20,65;
+    --btn-rgb: 50,14,52;
+    --btnactive-rgb: 150,30,110;
+    --btnhover-rgb: 90,24,90;
+    --btnreveal-rgb: 180,40,120;
+    --btn2-rgb: 38,10,42;
+    --btn2down-rgb: 70,20,75;
+    --shade-rgb: 0,0,0;
+    --body-bg: radial-gradient(ellipse at 20% 20%, rgba(255,0,127,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(255,140,0,0.08) 0%, transparent 60%), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235E1B4E' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    --logo-grad: linear-gradient(135deg, #FFD700 0%, #FFB347 30%, #FF4F8E 70%, #FF7ACE 100%);
+    --logo-glow-rest: drop-shadow(0 0 8px rgba(255,180,0,0.55));
+    --logo-glow-a: drop-shadow(0 0 8px rgba(255,180,0,0.4));
+    --logo-glow-b: drop-shadow(0 0 20px rgba(255,180,0,0.85)) drop-shadow(0 0 40px rgba(255,45,120,0.45));
+    --shimmer-grad: linear-gradient(90deg, #FFD700, #FF4F8E, #FFD700);
+    --bigwin-grad: linear-gradient(135deg, #FFD700, #FFB347, #FF4F8E, #FFF176);
+    --jackpot-bg: linear-gradient(90deg, #2A0A2E, #4A1048, #2A0A2E);
+    --jp-shadow-a: 0 0 15px rgba(255,180,0,0.3), inset 0 0 20px rgba(160,0,100,0.3);
+    --jp-shadow-b: 0 0 30px rgba(255,215,0,0.5), inset 0 0 20px rgba(160,0,100,0.3);
+    --vault-border: #B44CFF;
+    --vault-bright: #D67BFF;
+    --vault-mid: #B44CFF;
+    --vault-text: #E2C2FF;
+    --vault-track-border: #5A2A9A;
+    --vault-bg: linear-gradient(90deg, #1E0A3E, #301260, #1E0A3E);
+    --vault-fill: linear-gradient(90deg, #B44CFF, #D67BFF, #FFD700);
+    --vault-tile-bg: linear-gradient(135deg, #301260, #1E0A3E);
+    --vault-tile-revealed: linear-gradient(135deg, #5A2A9A, #3A1A6A);
+    --vault-tile-stop: linear-gradient(135deg, #6E1140, #330824);
+    --vault-tile-grand: linear-gradient(135deg, #FFD700, #FF8C00);
+    --vault-ready-a: 0 0 12px rgba(255,215,0,0.4);
+    --vault-ready-b: 0 0 28px rgba(255,215,0,0.9);
+    --frame-bg: linear-gradient(180deg, #321038 0%, #1A0822 100%);
+    --frame-shadow: 0 0 40px rgba(255,60,160,0.3), inset 0 0 40px rgba(0,0,0,0.55), 0 4px 0 #4A1860, 0 8px 0 #32104A;
+    --cell-win-bg: radial-gradient(ellipse, rgba(255,220,0,0.3) 0%, transparent 70%);
+    --cell-wild-bg: radial-gradient(ellipse, rgba(180,76,255,0.35) 0%, transparent 80%);
+    --wild-grad: linear-gradient(90deg, #B44CFF, #D67BFF);
+    --spin-bg: radial-gradient(circle at 35% 35%, #FF5C8A, #E0156E 60%, #8F0A46);
+    --spin-shadow: 0 0 25px rgba(255,45,120,0.6), 0 5px 0 #5C0830, inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,215,0,0.3);
+    --spin-shadow-active: 0 0 15px rgba(255,45,120,0.4), 0 2px 0 #5C0830, inset 0 -2px 0 rgba(0,0,0,0.3);
+    --spin-free-bg: radial-gradient(circle at 35% 35%, #00FF88, #00AA55 60%, #007733);
+    --free-btn-a: 0 0 20px rgba(0,255,136,0.5), 0 5px 0 #004422;
+    --free-btn-b: 0 0 35px rgba(0,255,136,0.9), 0 5px 0 #004422;
+    --free-text: #00FF88;
+    --free-border: #00CC66;
+    --free-pale: #AFFFD0;
+    --free-bar-bg: linear-gradient(90deg, #001F12, #00432A, #001F12);
+    --modal-bg: linear-gradient(180deg, #3A1040, #1C0820);
+    --toast-bg: linear-gradient(135deg, #3A1040, #1C0820);
+    --cta-grad: linear-gradient(135deg, #9C0A48, #E0156E);
+    --cta-grad-hover: linear-gradient(135deg, #C40D5E, #FF3D7E);
+    --pond-bg: linear-gradient(180deg, #001A3A, #003366);
+    --track-fill: linear-gradient(90deg, #E0156E, #FF7ACE);
+    --env-bg: linear-gradient(180deg, #2A0A2E, #4A1048);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   body {
     background: var(--darker);
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(180,0,0,0.15) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 80%, rgba(180,80,0,0.1) 0%, transparent 60%),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23660000' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    font-family: 'Noto Sans SC', Arial, sans-serif;
+    background-image: var(--body-bg);
+    font-family: var(--font-body);
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
@@ -63,22 +147,21 @@
   #logo {
     font-size: clamp(1.1rem, 5vw, 3rem);
     font-weight: 900;
-    background: linear-gradient(135deg, #FFD700 0%, #FF8C00 40%, #FFD700 70%, #FFF176 100%);
+    background: var(--logo-grad);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: none;
     letter-spacing: 2px;
-    filter: drop-shadow(0 0 8px rgba(255,180,0,0.6));
+    filter: var(--logo-glow-rest);
     animation: logoGlow 3s ease-in-out infinite alternate;
   }
 
   @keyframes logoGlow {
-    from { filter: drop-shadow(0 0 8px rgba(255,180,0,0.4)); }
-    to   { filter: drop-shadow(0 0 20px rgba(255,180,0,0.9)) drop-shadow(0 0 40px rgba(255,100,0,0.4)); }
+    from { filter: var(--logo-glow-a); }
+    to   { filter: var(--logo-glow-b); }
   }
 
-  #subtitle { font-size: clamp(0.6rem, 2.5vw, 0.85rem); color: #FF9944; letter-spacing: 3px; margin-top: -2px; opacity: 0.85; }
 
   /* ===== COINS DISPLAY ===== */
   #coins-display {
@@ -88,7 +171,7 @@
     color: var(--gold);
     padding: 4px 0 6px;
     letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(255,200,0,0.5);
+    text-shadow: 0 0 10px rgba(var(--glow1-rgb),0.5);
     display: flex;
     justify-content: center;
     align-items: baseline;
@@ -96,7 +179,7 @@
   }
   #last-win-display {
     font-size: clamp(0.75rem, 3vw, 0.9rem);
-    color: #00FF88;
+    color: var(--free-text);
     font-weight: 700;
     opacity: 0;
     transition: opacity 0.3s;
@@ -112,26 +195,26 @@
   }
 
   #jackpot-display {
-    background: linear-gradient(90deg, #2a0000, #5a1000, #2a0000);
+    background: var(--jackpot-bg);
     border: 2px solid var(--gold2);
     border-radius: 10px;
     padding: 5px 16px;
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 0 15px rgba(255,120,0,0.3), inset 0 0 20px rgba(180,0,0,0.3);
+    box-shadow: var(--jp-shadow-a);
     animation: jackpotPulse 4s ease-in-out infinite;
   }
 
   @keyframes jackpotPulse {
-    0%, 100% { box-shadow: 0 0 15px rgba(255,120,0,0.3), inset 0 0 20px rgba(180,0,0,0.3); }
-    50%       { box-shadow: 0 0 30px rgba(255,200,0,0.5), inset 0 0 20px rgba(180,0,0,0.3); }
+    0%, 100% { box-shadow: var(--jp-shadow-a); }
+    50%       { box-shadow: var(--jp-shadow-b); }
   }
 
-  #jackpot-label { font-size: 0.7rem; color: #FF9944; letter-spacing: 2px; text-transform: uppercase; }
+  #jackpot-label { font-size: 0.7rem; color: var(--label); letter-spacing: 2px; text-transform: uppercase; }
   #jackpot-amount {
     font-size: clamp(1.2rem, 5vw, 1.6rem); font-weight: 900;
-    background: linear-gradient(90deg, #FFD700, #FF8C00, #FFD700);
+    background: var(--shimmer-grad);
     background-size: 200%;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     animation: shimmer 2s linear infinite;
@@ -146,39 +229,39 @@
     padding: 2px 12px 4px;
   }
   #vault-inner {
-    background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030);
-    border: 2px solid #8E44AD;
+    background: var(--vault-bg);
+    border: 2px solid var(--vault-border);
     border-radius: 10px;
     padding: 6px 12px;
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 0 12px rgba(142,68,173,0.3);
+    box-shadow: 0 0 12px rgba(var(--vault-rgb),0.3);
   }
-  #vault-label { font-size: clamp(0.72rem, 3vw, 0.85rem); font-weight: 700; color: #D7A6F0; white-space: nowrap; }
+  #vault-label { font-size: clamp(0.72rem, 3vw, 0.85rem); font-weight: 700; color: var(--vault-text); white-space: nowrap; }
   #vault-track {
     flex: 1; min-width: 0;
     height: 14px;
-    background: rgba(0,0,0,0.4);
+    background: rgba(var(--shade-rgb),0.4);
     border-radius: 7px;
     overflow: hidden;
-    border: 1px solid #5a2a7a;
+    border: 1px solid var(--vault-track-border);
   }
   #vault-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #8E44AD, #C44CFF, #FFD700);
+    background: var(--vault-fill);
     border-radius: 7px;
     transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
   }
-  #vault-keys-text { font-size: clamp(0.72rem, 3vw, 0.85rem); font-weight: 900; color: #FFD700; white-space: nowrap; }
+  #vault-keys-text { font-size: clamp(0.72rem, 3vw, 0.85rem); font-weight: 900; color: var(--gold); white-space: nowrap; }
   #vault-inner.ready {
     animation: vaultReady 0.7s ease-in-out infinite alternate;
     cursor: pointer;
   }
   @keyframes vaultReady {
-    from { box-shadow: 0 0 12px rgba(255,215,0,0.4); border-color: #C44CFF; }
-    to   { box-shadow: 0 0 28px rgba(255,215,0,0.9); border-color: #FFD700; }
+    from { box-shadow: var(--vault-ready-a); border-color: var(--vault-bright); }
+    to   { box-shadow: var(--vault-ready-b); border-color: var(--gold); }
   }
 
   /* ===== GRAND VAULT MINIGAME ===== */
@@ -193,34 +276,34 @@
   .vault-tile {
     aspect-ratio: 1;
     border-radius: 10px;
-    border: 2px solid #8E44AD;
-    background: linear-gradient(135deg, #2a0050, #1a0030);
+    border: 2px solid var(--vault-border);
+    background: var(--vault-tile-bg);
     font-size: 1.8rem;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    color: #D7A6F0;
+    color: var(--vault-text);
   }
   .vault-tile:active { transform: scale(0.94); }
   .vault-tile.revealed {
     animation: tileFlip 0.4s ease;
-    border-color: #FFD700;
-    background: linear-gradient(135deg, #5a2a7a, #3a1a5a);
-    color: #FFD700;
+    border-color: var(--gold);
+    background: var(--vault-tile-revealed);
+    color: var(--gold);
     font-weight: 900;
     font-size: 1.1rem;
     cursor: default;
   }
-  .vault-tile.stop { background: linear-gradient(135deg, #661111, #330808); border-color: #FF4444; }
-  .vault-tile.grand { background: linear-gradient(135deg, #FFD700, #FF8C00); border-color: #FFF176; color: #5a2a00; }
+  .vault-tile.stop { background: var(--vault-tile-stop); border-color: var(--loss-text); }
+  .vault-tile.grand { background: var(--vault-tile-grand); border-color: var(--accent-pale); color: var(--frame-edge2); }
   @keyframes tileFlip {
     0% { transform: rotateY(90deg) scale(0.8); }
     100% { transform: rotateY(0) scale(1); }
   }
   #vault-pot {
-    font-size: 1.3rem; font-weight: 900; color: #FFD700;
+    font-size: 1.3rem; font-weight: 900; color: var(--gold);
     margin: 4px 0 10px;
-    text-shadow: 0 0 12px rgba(255,215,0,0.6);
+    text-shadow: 0 0 12px rgba(var(--gold-rgb),0.6);
   }
 
   /* ===== MACHINE FRAME ===== */
@@ -232,15 +315,11 @@
   }
 
   #machine-frame {
-    background: linear-gradient(180deg, #3a0000 0%, #200000 100%);
+    background: var(--frame-bg);
     border: 3px solid var(--gold2);
     border-radius: 16px;
     padding: 10px;
-    box-shadow:
-      0 0 40px rgba(255,100,0,0.3),
-      inset 0 0 40px rgba(0,0,0,0.5),
-      0 4px 0 #8B4500,
-      0 8px 0 #5a2a00;
+    box-shadow: var(--frame-shadow);
     position: relative;
     overflow: hidden;
   }
@@ -250,8 +329,8 @@
   #reels-container {
     display: flex;
     gap: 4px;
-    background: #0a0000;
-    border: 3px solid #440000;
+    background: var(--reel-area-bg);
+    border: 3px solid var(--border-mid);
     border-radius: 12px;
     padding: 6px;
     position: relative;
@@ -264,7 +343,7 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 30%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+    background: linear-gradient(to bottom, rgba(var(--shade-rgb),0.6), transparent);
     pointer-events: none;
     z-index: 10;
   }
@@ -274,7 +353,7 @@
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 30%;
-    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    background: linear-gradient(to top, rgba(var(--shade-rgb),0.6), transparent);
     pointer-events: none;
     z-index: 10;
   }
@@ -294,8 +373,8 @@
     overflow: hidden;
     border-radius: 8px;
     position: relative;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid #330000;
+    background: rgba(var(--shade-rgb),0.5);
+    border: 1px solid var(--border-subtle);
   }
   @media (max-height: 750px) {
     .reel {
@@ -317,7 +396,7 @@
     justify-content: center;
     font-size: clamp(1.8rem, 9vw, 2.8rem);
     position: relative;
-    border-bottom: 1px solid rgba(100,0,0,0.3);
+    border-bottom: 1px solid rgba(var(--divider-rgb),0.3);
     transition: background 0.2s;
     cursor: default;
     user-select: none;
@@ -332,7 +411,7 @@
   }
 
   .reel-cell.winning {
-    background: radial-gradient(ellipse, rgba(255,220,0,0.3) 0%, transparent 70%) !important;
+    background: var(--cell-win-bg) !important;
     animation: cellWin 0.4s ease-in-out infinite alternate;
   }
 
@@ -345,7 +424,7 @@
     font-weight: 900;
     letter-spacing: 1px;
     color: #fff;
-    background: linear-gradient(90deg, #9B59B6, #C44CFF);
+    background: var(--wild-grad);
     border-radius: 3px;
     padding: 1px 4px;
     pointer-events: none;
@@ -355,7 +434,7 @@
 
   @keyframes cellWin {
     from { transform: scale(1); filter: brightness(1); }
-    to   { transform: scale(1.15); filter: brightness(1.5) drop-shadow(0 0 8px gold); }
+    to   { transform: scale(1.15); filter: brightness(1.5) drop-shadow(0 0 8px var(--gold)); }
   }
 
   /* Middle row highlight (hidden with 4-row grid) */
@@ -390,10 +469,10 @@
   #win-amount {
     font-size: 1.6rem;
     font-weight: 900;
-    color: #FFD700;
+    color: var(--gold);
     opacity: 0;
     transition: all 0.3s 0.1s;
-    text-shadow: 0 0 15px rgba(255,220,0,0.8);
+    text-shadow: 0 0 15px rgba(var(--gold-rgb),0.8);
   }
 
   #win-amount.visible { opacity: 1; }
@@ -412,9 +491,9 @@
     font-size: 0.65rem;
     padding: 2px 6px;
     border-radius: 4px;
-    background: rgba(200,100,0,0.3);
-    border: 1px solid rgba(200,100,0,0.5);
-    color: #FFB84D;
+    background: rgba(var(--chip-rgb),0.3);
+    border: 1px solid rgba(var(--chip-rgb),0.5);
+    color: var(--accent-mid);
   }
 
   /* ===== CONTROLS ===== */
@@ -435,7 +514,7 @@
 
   .control-label {
     font-size: 0.65rem;
-    color: rgba(255,180,100,0.7);
+    color: rgba(var(--textsoft-rgb),0.7);
     letter-spacing: 2px;
     text-transform: uppercase;
   }
@@ -448,10 +527,10 @@
   }
 
   .bet-btn {
-    background: rgba(60,10,0,0.8);
-    border: 1px solid #660000;
+    background: rgba(var(--btn-rgb),0.8);
+    border: 1px solid var(--border-strong);
     border-radius: 7px;
-    color: #FFD060;
+    color: var(--accent-soft);
     font-size: 0.95rem;
     font-weight: 700;
     /* large touch target for older players */
@@ -463,10 +542,10 @@
   }
 
   .bet-btn:active { transform: scale(0.95); }
-  .bet-btn.active { background: rgba(180,60,0,0.8); border-color: var(--gold); color: var(--gold); }
+  .bet-btn.active { background: rgba(var(--btnactive-rgb),0.8); border-color: var(--gold); color: var(--gold); }
 
   #spin-btn {
-    background: radial-gradient(circle at 35% 35%, #FF6600, #CC2200 60%, #990000);
+    background: var(--spin-bg);
     border: 4px solid var(--gold);
     border-radius: 50%;
     width: min(120px, 28vw);
@@ -474,7 +553,7 @@
     font-size: clamp(2rem, 8vw, 2.6rem);
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
-    box-shadow: 0 0 25px rgba(255,100,0,0.6), 0 5px 0 #770000, inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,180,0,0.3);
+    box-shadow: var(--spin-shadow);
     position: relative;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
@@ -484,21 +563,21 @@
 
   #spin-btn:active:not(:disabled) {
     transform: scale(0.93) translateY(3px);
-    box-shadow: 0 0 15px rgba(255,100,0,0.4), 0 2px 0 #770000, inset 0 -2px 0 rgba(0,0,0,0.3);
+    box-shadow: var(--spin-shadow-active);
   }
 
   #spin-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
-  #spin-btn-label { font-size: clamp(0.55rem, 2vw, 0.7rem); letter-spacing: 2px; color: rgba(255,230,180,0.95); font-weight: 700; margin-top: 2px; }
+  #spin-btn-label { font-size: clamp(0.55rem, 2vw, 0.7rem); letter-spacing: 2px; color: rgba(var(--textwarm-rgb),0.95); font-weight: 700; margin-top: 2px; }
 
   /* Free-spin mode: make the spin button unmistakable */
   #spin-btn.free-mode {
-    background: radial-gradient(circle at 35% 35%, #00FF88, #00AA55 60%, #007733);
-    border-color: #AFFFD0;
+    background: var(--spin-free-bg);
+    border-color: var(--free-pale);
     animation: freeSpinBtn 0.7s ease-in-out infinite alternate;
   }
   @keyframes freeSpinBtn {
-    from { box-shadow: 0 0 20px rgba(0,255,136,0.5), 0 5px 0 #004422; transform: scale(1); }
-    to   { box-shadow: 0 0 35px rgba(0,255,136,0.9), 0 5px 0 #004422; transform: scale(1.05); }
+    from { box-shadow: var(--free-btn-a); transform: scale(1); }
+    to   { box-shadow: var(--free-btn-b); transform: scale(1.05); }
   }
 
   .right-controls {
@@ -509,10 +588,10 @@
   }
 
   .icon-btn {
-    background: rgba(40,10,0,0.8);
-    border: 1px solid #550000;
+    background: rgba(var(--btn2-rgb),0.8);
+    border: 1px solid var(--btn2-border);
     border-radius: 8px;
-    color: #FFD060;
+    color: var(--accent-soft);
     font-size: clamp(0.72rem, 3vw, 0.85rem);
     font-weight: 700;
     /* large touch target for older players */
@@ -525,8 +604,8 @@
     justify-content: center;
   }
 
-  .icon-btn:active { transform: scale(0.96); background: rgba(80,20,0,0.8); }
-  .icon-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(100,40,0,0.8); }
+  .icon-btn:active { transform: scale(0.96); background: rgba(var(--btn2down-rgb),0.8); }
+  .icon-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(var(--warmdeep-rgb),0.8); }
 
   /* ===== PAYTABLE ===== */
   #info-panel {
@@ -542,7 +621,7 @@
     flex: 1;
     min-width: 200px;
     background: var(--panel);
-    border: 1px solid #440000;
+    border: 1px solid var(--border-mid);
     border-radius: 10px;
     padding: 10px;
   }
@@ -553,7 +632,7 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 8px;
-    border-bottom: 1px solid #440000;
+    border-bottom: 1px solid var(--border-mid);
     padding-bottom: 5px;
   }
 
@@ -563,13 +642,13 @@
     justify-content: space-between;
     padding: 3px 0;
     font-size: 0.78rem;
-    border-bottom: 1px solid rgba(100,0,0,0.2);
+    border-bottom: 1px solid rgba(var(--divider-rgb),0.2);
   }
 
   .paytable-row:last-child { border-bottom: none; }
   .pay-symbol { font-size: 1rem; margin-right: 4px; }
-  .pay-name { flex: 1; color: rgba(255,200,150,0.8); }
-  .pay-vals { color: #FFD060; font-size: 0.7rem; font-weight: 700; }
+  .pay-name { flex: 1; color: rgba(var(--textwarm-rgb),0.8); }
+  .pay-vals { color: var(--accent-soft); font-size: 0.7rem; font-weight: 700; }
 
   /* ===== ACHIEVEMENTS ===== */
   #achievements-panel {
@@ -594,11 +673,11 @@
 
   .achievement {
     background: var(--panel);
-    border: 1px solid #330000;
+    border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 6px 10px;
     font-size: 0.75rem;
-    color: rgba(255,180,100,0.5);
+    color: rgba(var(--textsoft-rgb),0.5);
     transition: all 0.3s;
     display: flex; align-items: center; gap: 5px;
   }
@@ -606,8 +685,8 @@
   .achievement.unlocked {
     border-color: var(--gold2);
     color: var(--gold);
-    background: rgba(60,20,0,0.9);
-    box-shadow: 0 0 8px rgba(255,150,0,0.3);
+    background: rgba(var(--achun-rgb),0.9);
+    box-shadow: 0 0 8px rgba(var(--glow1-rgb),0.3);
     animation: achieveUnlock 0.5s ease;
   }
 
@@ -621,7 +700,7 @@
   #minigame-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.85);
+    background: rgba(var(--shade-rgb),0.85);
     z-index: 1000;
     display: none;
     align-items: center;
@@ -632,14 +711,14 @@
   #minigame-overlay.active { display: flex; }
 
   #minigame-box {
-    background: linear-gradient(180deg, #2a0000, #1a0505);
+    background: var(--modal-bg);
     border: 3px solid var(--gold);
     border-radius: 20px;
     padding: 30px;
     max-width: 500px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 0 50px rgba(255,150,0,0.4);
+    box-shadow: 0 0 50px rgba(var(--glow1-rgb),0.4);
     position: relative;
     animation: boxIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -653,13 +732,13 @@
     font-size: 1.8rem;
     font-weight: 900;
     color: var(--gold);
-    text-shadow: 0 0 20px rgba(255,180,0,0.8);
+    text-shadow: 0 0 20px rgba(var(--glow1-rgb),0.8);
     margin-bottom: 8px;
   }
 
   #minigame-subtitle {
     font-size: 0.9rem;
-    color: #FF9944;
+    color: var(--label);
     margin-bottom: 20px;
   }
 
@@ -687,8 +766,8 @@
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    border: 3px solid rgba(255,180,0,0.5);
-    background: rgba(60,10,0,0.8);
+    border: 3px solid rgba(var(--glow1-rgb),0.5);
+    background: rgba(var(--btn-rgb),0.8);
     cursor: pointer;
     transition: all 0.2s;
     display: flex; align-items: center; justify-content: center;
@@ -701,18 +780,18 @@
   .mg-btn:nth-child(5) { animation-delay: 1.2s; }
 
   @keyframes mgBtnPulse {
-    0%, 100% { transform: scale(1); border-color: rgba(255,180,0,0.5); }
-    50%       { transform: scale(1.05); border-color: rgba(255,180,0,1); box-shadow: 0 0 15px rgba(255,180,0,0.4); }
+    0%, 100% { transform: scale(1); border-color: rgba(var(--glow1-rgb),0.5); }
+    50%       { transform: scale(1.05); border-color: rgba(var(--glow1-rgb),1); box-shadow: 0 0 15px rgba(var(--glow1-rgb),0.4); }
   }
 
-  .mg-btn:hover { transform: scale(1.15) !important; background: rgba(120,30,0,0.9); border-color: var(--gold) !important; }
+  .mg-btn:hover { transform: scale(1.15) !important; background: rgba(var(--btnhover-rgb),0.9); border-color: var(--gold) !important; }
   .mg-btn:disabled { opacity: 0.4; cursor: not-allowed; animation: none; }
 
-  .mg-btn.revealed { animation: none !important; border-color: var(--gold) !important; background: rgba(200,80,0,0.8); }
+  .mg-btn.revealed { animation: none !important; border-color: var(--gold) !important; background: rgba(var(--btnreveal-rgb),0.8); }
 
   #mg-close-btn {
     margin-top: 15px;
-    background: linear-gradient(135deg, #880000, #CC2200);
+    background: var(--cta-grad);
     border: 2px solid var(--gold);
     border-radius: 10px;
     color: var(--gold);
@@ -724,7 +803,7 @@
     display: none;
   }
 
-  #mg-close-btn:hover { background: linear-gradient(135deg, #AA0000, #FF3300); transform: scale(1.05); }
+  #mg-close-btn:hover { background: var(--cta-grad-hover); transform: scale(1.05); }
 
   /* ===== FORTUNE WHEEL ===== */
   #wheel-container {
@@ -741,7 +820,7 @@
     border: 4px solid var(--gold);
     position: relative;
     transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-    box-shadow: 0 0 20px rgba(255,180,0,0.4);
+    box-shadow: 0 0 20px rgba(var(--glow1-rgb),0.4);
   }
 
   #wheel-pointer {
@@ -749,11 +828,11 @@
     top: -18px; left: 50%; transform: translateX(-50%);
     font-size: 1.5rem;
     z-index: 10;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 2px 4px rgba(var(--shade-rgb),0.8));
   }
 
   #wheel-spin-btn {
-    background: linear-gradient(135deg, #CC2200, #FF4400);
+    background: var(--cta-grad);
     border: 2px solid var(--gold);
     border-radius: 10px;
     color: var(--gold);
@@ -771,9 +850,9 @@
   #fish-pond {
     width: 100%;
     height: 200px;
-    background: linear-gradient(180deg, #001a3a, #003366);
+    background: var(--pond-bg);
     border-radius: 12px;
-    border: 2px solid #0055AA;
+    border: 2px solid var(--pond-border);
     position: relative;
     overflow: hidden;
     cursor: crosshair;
@@ -825,13 +904,13 @@
     margin: 10px 0;
     width: 100%;
     box-sizing: border-box;
-    background: rgba(0,0,0,0.3);
+    background: rgba(var(--shade-rgb),0.3);
     border-radius: 8px;
     padding: 10px;
-    border: 1px solid #440000;
+    border: 1px solid var(--border-mid);
   }
 
-  .crab-lane.your-crab { border-color: var(--gold); background: rgba(60,30,0,0.4); }
+  .crab-lane.your-crab { border-color: var(--gold); background: rgba(var(--laneyou-rgb),0.4); }
 
   .crab-racer {
     font-size: 2rem;
@@ -843,7 +922,7 @@
     flex: 1;
     min-width: 0;
     height: 14px;
-    background: rgba(100,50,0,0.4);
+    background: rgba(var(--track-rgb),0.4);
     border-radius: 7px;
     overflow: hidden;
     position: relative;
@@ -851,22 +930,22 @@
 
   .crab-progress {
     height: 100%;
-    background: linear-gradient(90deg, #CC2200, #FF6600);
+    background: var(--track-fill);
     border-radius: 7px;
     width: 0%;
     transition: width 0.1s linear;
   }
 
-  .your-crab .crab-progress { background: linear-gradient(90deg, var(--gold), #FFF176); }
+  .your-crab .crab-progress { background: linear-gradient(90deg, var(--gold), var(--accent-pale)); }
 
-  .crab-label { font-size: 0.8rem; font-weight: 700; color: #FF9944; width: 58px; text-align: center; flex-shrink: 0; }
+  .crab-label { font-size: 0.8rem; font-weight: 700; color: var(--label); width: 58px; text-align: center; flex-shrink: 0; }
 
   /* ===== NOTIFICATION ===== */
   #notification {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: linear-gradient(135deg, #2a0000, #1a0505);
+    background: var(--toast-bg);
     border: 2px solid var(--gold);
     border-radius: 12px;
     padding: 12px 18px;
@@ -877,7 +956,7 @@
     transform: translateX(120%);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     max-width: 280px;
-    box-shadow: 0 0 20px rgba(255,150,0,0.4);
+    box-shadow: 0 0 20px rgba(var(--glow1-rgb),0.4);
   }
 
   #notification.show { transform: translateX(0); }
@@ -895,7 +974,7 @@
   #bigwin-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(var(--shade-rgb),0.7);
     z-index: 900;
     display: none;
     align-items: center;
@@ -909,20 +988,20 @@
   #bigwin-text {
     font-size: clamp(3rem, 10vw, 6rem);
     font-weight: 900;
-    background: linear-gradient(135deg, #FFD700, #FF8C00, #FFD700, #FFF176);
+    background: var(--bigwin-grad);
     background-size: 200%;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     animation: bigWinPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), shimmer 1s linear infinite;
     text-align: center;
-    filter: drop-shadow(0 0 20px rgba(255,180,0,0.8));
+    filter: drop-shadow(0 0 20px rgba(var(--glow1-rgb),0.8));
     line-height: 1;
   }
 
   #bigwin-amount {
     font-size: clamp(2rem, 7vw, 4rem);
     font-weight: 900;
-    color: #FFF176;
-    text-shadow: 0 0 30px rgba(255,220,0,1);
+    color: var(--accent-pale);
+    text-shadow: 0 0 30px rgba(var(--gold-rgb),1);
     animation: bigWinPop 0.5s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
@@ -940,7 +1019,7 @@
 
   #history-panel h3 {
     font-size: 0.7rem;
-    color: rgba(255,180,100,0.5);
+    color: rgba(var(--textsoft-rgb),0.5);
     letter-spacing: 2px;
     margin-bottom: 6px;
   }
@@ -954,13 +1033,13 @@
 
   .history-item {
     background: var(--panel);
-    border: 1px solid #330000;
+    border: 1px solid var(--border-subtle);
     border-radius: 4px;
     padding: 2px 6px;
-    color: rgba(255,180,100,0.6);
+    color: rgba(var(--textsoft-rgb),0.6);
   }
 
-  .history-item.win { border-color: var(--gold2); color: #FFD060; }
+  .history-item.win { border-color: var(--gold2); color: var(--accent-soft); }
   .history-item.big-win { border-color: var(--gold); color: var(--gold); font-weight: 700; }
 
   /* ===== FREE SPINS ===== */
@@ -970,30 +1049,30 @@
     padding: 9px 12px;
     /* clear the 🐉 幸運 🐉 frame decoration at the top */
     margin-top: 20px;
-    background: linear-gradient(90deg, #001a00, #004a00, #001a00);
-    border: 2px solid #00CC66;
+    background: var(--free-bar-bg);
+    border: 2px solid var(--free-border);
     border-radius: 8px;
-    color: #00FF88;
+    color: var(--free-text);
     font-size: clamp(0.9rem, 3.6vw, 1.05rem);
     font-weight: 900;
     letter-spacing: 1px;
     animation: freeSpinBar 0.8s ease-in-out infinite alternate;
     margin-bottom: 6px;
-    box-shadow: 0 0 12px rgba(0,255,136,0.25), inset 0 0 12px rgba(0,180,80,0.1);
+    box-shadow: 0 0 12px rgba(var(--free-rgb),0.25), inset 0 0 12px rgba(var(--free2-rgb),0.1);
     position: relative;
     z-index: 6;
   }
 
   @keyframes freeSpinBar {
-    from { box-shadow: 0 0 8px rgba(0,255,136,0.2); }
-    to   { box-shadow: 0 0 20px rgba(0,255,136,0.6), inset 0 0 12px rgba(0,180,80,0.15); }
+    from { box-shadow: 0 0 8px rgba(var(--free-rgb),0.2); }
+    to   { box-shadow: 0 0 20px rgba(var(--free-rgb),0.6), inset 0 0 12px rgba(var(--free2-rgb),0.15); }
   }
 
   /* ===== MULTIPLIER ===== */
   #multiplier-display {
     text-align: center;
     font-size: 0.85rem;
-    color: #FF6644;
+    color: var(--hot-text);
     font-weight: 700;
     margin-bottom: 2px;
     overflow: hidden;
@@ -1009,7 +1088,7 @@
   /* ===== SCROLLBAR ===== */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--darker); }
-  ::-webkit-scrollbar-thumb { background: #440000; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
 
   /* ===== NOTIFICATION — slide up from bottom on mobile ===== */
   @media (max-width: 480px) {
@@ -1049,7 +1128,6 @@
     .reel-cell { height: min(58px, 12vw); font-size: clamp(1.2rem, 6vw, 1.7rem); }
     #header { padding-top: 4px; padding-bottom: 0; }
     #logo { font-size: clamp(1rem, 4.5vw, 1.5rem); }
-    #subtitle { display: none; }
   }
 
   /* ===== MINI GAME BOX — full mobile ===== */
@@ -1071,7 +1149,6 @@
     #achievements-panel { padding: 4px 10px 8px; }
     #history-panel { padding: 4px 10px 8px; }
     #logo { font-size: clamp(1.1rem, 5.5vw, 1.8rem); letter-spacing: 0; }
-    #subtitle { font-size: 0.65rem; letter-spacing: 2px; }
     #jackpot-display { padding: 4px 12px; }
   }
 
@@ -1079,7 +1156,7 @@
   #swipe-hint {
     text-align: center;
     font-size: 0.65rem;
-    color: rgba(255,180,100,0.4);
+    color: rgba(var(--textsoft-rgb),0.4);
     padding: 2px 0 4px;
     letter-spacing: 1px;
   }
@@ -1106,36 +1183,168 @@
   }
   #version-footer summary {
     font-size: 0.62rem;
-    color: rgba(255,150,80,0.3);
+    color: rgba(var(--textsoft-rgb),0.3);
     letter-spacing: 1px;
     cursor: pointer;
     list-style: none;
     user-select: none;
   }
   #version-footer summary::-webkit-details-marker { display: none; }
-  #version-footer summary:hover { color: rgba(255,150,80,0.55); }
+  #version-footer summary:hover { color: rgba(var(--textsoft-rgb),0.55); }
   #changelog {
     margin-top: 8px;
     font-size: 0.65rem;
-    color: rgba(255,180,100,0.45);
+    color: rgba(var(--textsoft-rgb),0.45);
     line-height: 1.8;
     text-align: left;
     max-width: 600px;
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(100,40,0,0.3);
+    background: rgba(var(--shade-rgb),0.2);
+    border: 1px solid rgba(var(--warmdeep-rgb),0.3);
     border-radius: 8px;
     padding: 10px 14px;
   }
-  #changelog b { color: rgba(255,200,100,0.65); }
+  #changelog b { color: rgba(var(--textsoft-rgb),0.65); }
 
   .reel-cell.wild-stacked {
-    background: radial-gradient(ellipse, rgba(155,89,182,0.35) 0%, transparent 80%) !important;
+    background: var(--cell-wild-bg) !important;
     animation: wildStack 0.5s ease-in-out infinite alternate;
   }
   @keyframes wildStack {
-    from { box-shadow: inset 0 0 8px rgba(155,89,182,0.4); }
-    to   { box-shadow: inset 0 0 20px rgba(196,76,255,0.8); }
+    from { box-shadow: inset 0 0 8px rgba(var(--vault-rgb),0.4); }
+    to   { box-shadow: inset 0 0 20px rgba(var(--vault2-rgb),0.8); }
   }
+</style>
+<style id="reskin-themes">
+/* ===== NEON GOLD reskin layer: global hooks + flourishes (v2.0) ===== */
+
+/* Display font hooks */
+#logo, #minigame-title, #bigwin-text { font-family: var(--font-display); }
+
+/* Retheme elements styled inline by game JS (allowed exception: visual only) */
+#wheel-spin-btn { background: var(--cta-grad) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
+#envelope-field { background: var(--env-bg) !important; border-color: var(--border-strong) !important; }
+#info-panel b[style*="#FFD700"], #minigame-result span[style*="#FFD700"] { color: var(--gold) !important; }
+#info-panel b[style*="#C44CFF"] { color: var(--vault-bright) !important; }
+#info-panel b[style*="#9B59B6"] { color: var(--vault-mid) !important; }
+#info-panel b[style*="#00FF88"] { color: var(--free-text) !important; }
+#info-panel b[style*="#FF6644"] { color: var(--hot-text) !important; }
+#minigame-result span[style*="#FF4444"], #minigame-result span[style*="#FF8888"] { color: var(--loss-text) !important; }
+#info-panel div[style*="rgba(255,200,150"] { color: rgba(var(--textwarm-rgb),0.85) !important; }
+#controls .control-label[style*="rgba(255,220,100"] { color: rgba(var(--textsoft-rgb),0.9) !important; }
+
+
+#logo { letter-spacing: 3px; }
+
+/* ===================== FUSION FLOURISHES — flashy layer ===================== */
+:root { --fx: 1; }
+
+/* Living background: breathing aura + drifting sparkles */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(255,45,120,0.20), transparent 38%),
+    radial-gradient(circle at 85% 70%, rgba(255,180,0,0.14), transparent 42%);
+  animation: fusionAura 9s ease-in-out infinite alternate;
+  opacity: calc(0.9 * var(--fx));
+}
+@keyframes fusionAura {
+  from { transform: scale(1); filter: hue-rotate(0deg); }
+  to   { transform: scale(1.12); filter: hue-rotate(-14deg); }
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background-image:
+    radial-gradient(circle, rgba(255,215,0,0.55) 1px, transparent 2px),
+    radial-gradient(circle, rgba(255,122,206,0.45) 1px, transparent 2px);
+  background-size: 140px 180px, 220px 260px;
+  background-position: 0 0, 60px 80px;
+  animation: fusionSparkle 36s linear infinite;
+  opacity: calc(0.5 * var(--fx));
+}
+@keyframes fusionSparkle {
+  to { background-position: 0 -1800px, 60px -2600px; }
+}
+
+/* Marquee chasing bulbs around the machine frame */
+#machine-frame::after {
+  content: ''; position: absolute; inset: 0; border-radius: 16px; pointer-events: none; z-index: 30;
+  padding: 6px;
+  background-image: radial-gradient(circle, rgba(255,215,0,0.95) 1.5px, rgba(255,150,0,0.3) 2.5px, transparent 3.5px);
+  background-size: 22px 22px;
+  background-position: 4px 4px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: marqueeChase 1s steps(1) infinite;
+  opacity: var(--fx);
+}
+@keyframes marqueeChase {
+  0%, 49%  { background-position: 4px 4px; }
+  50%, 100% { background-position: 15px 15px; }
+}
+
+/* Spin button: breathing glow (press/disabled states untouched) */
+#spin-btn:not(.free-mode):not(:disabled) {
+  animation: fusionSpinIdle 1.6s ease-in-out infinite alternate;
+}
+@keyframes fusionSpinIdle {
+  from { box-shadow: 0 0 25px rgba(255,45,120,0.6), 0 5px 0 #5C0830, inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,215,0,0.3); }
+  to   { box-shadow: 0 0 45px rgba(255,45,120,0.95), 0 0 85px rgba(255,215,0,0.35), 0 5px 0 #5C0830, inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,215,0,0.45); }
+}
+
+/* Logo: gradient shimmer sweep on top of the glow pulse */
+#logo {
+  background-size: 200%;
+  animation: logoGlow 3s ease-in-out infinite alternate, shimmer 4s linear infinite;
+}
+
+/* Jackpot bar: passing sheen */
+#jackpot-display { position: relative; overflow: hidden; }
+#jackpot-display::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.22), transparent);
+  animation: fusionSheen 3.5s ease-in-out infinite;
+  opacity: var(--fx);
+}
+@keyframes fusionSheen {
+  0% { left: -60%; } 35% { left: 130%; } 100% { left: 130%; }
+}
+
+/* Selected bet pulses gold */
+.bet-btn.active {
+  animation: fusionBetPulse 1.4s ease-in-out infinite alternate;
+}
+@keyframes fusionBetPulse {
+  from { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+  to   { box-shadow: 0 0 16px rgba(255,215,0,0.75); }
+}
+.bet-btn:hover { border-color: var(--gold); }
+.icon-btn:hover { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.25); }
+
+/* Hotter win-cell flash in fusion */
+:root {
+  --cell-win-bg: radial-gradient(ellipse, rgba(255,220,0,0.45) 0%, transparent 70%);
+}
+
+/* Big win: rotating golden rays behind the text (all themes) */
+#bigwin-overlay::before {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 200vmax; height: 200vmax; z-index: -1;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(from 0deg, rgba(var(--gold-rgb),0.12) 0deg 9deg, transparent 9deg 18deg);
+  animation: fusionRays 18s linear infinite;
+  pointer-events: none;
+  opacity: var(--fx);
+}
+@keyframes fusionRays {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Reduced motion kills the flourishes */
+@media (prefers-reduced-motion: reduce) {
+  html body::before, html body::after, html #machine-frame::after,
+  html #jackpot-display::after, html #bigwin-overlay::before { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -1167,7 +1376,6 @@
 
 <div id="header">
   <div id="logo">🐱 LUCKY PAWS CASINO 🎰</div>
-  <div id="subtitle">✨ 幸运爪子 · FORTUNE · FISH · FELINES ✨</div>
 </div>
 
 <!-- JACKPOT -->
@@ -1219,16 +1427,16 @@
     <!-- CONTROLS -->
     <div id="controls">
       <div class="bet-group">
-        <div class="control-label">BET</div>
+        <div class="control-label" style="white-space:nowrap">BET / SPIN</div>
         <div class="bet-buttons">
-          <button class="bet-btn active" onclick="setBet(5)" data-bet="5">$5</button>
-          <button class="bet-btn" onclick="setBet(10)" data-bet="10">$10</button>
-          <button class="bet-btn" onclick="setBet(25)" data-bet="25">$25</button>
-          <button class="bet-btn" onclick="setBet(50)" data-bet="50">$50</button>
-          <button class="bet-btn" onclick="setBet(100)" data-bet="100">MAX</button>
+          <button class="bet-btn active" onclick="setBet(5)" data-bet="5">$60</button>
+          <button class="bet-btn" onclick="setBet(10)" data-bet="10">$120</button>
+          <button class="bet-btn" onclick="setBet(25)" data-bet="25">$300</button>
+          <button class="bet-btn" onclick="setBet(50)" data-bet="50">$600</button>
+          <button class="bet-btn" onclick="setBet(100)" data-bet="100">MAX $1,200</button>
         </div>
         <div class="control-label" style="margin-top:4px">LINES: <span id="lines-display">12</span></div>
-        <div class="control-label" style="margin-top:2px; color: rgba(255,220,100,0.85)">TOTAL: <span id="total-bet-display">$60</span></div>
+        <div class="control-label" style="display:none; margin-top:2px; color: rgba(255,220,100,0.85)">TOTAL: <span id="total-bet-display">$60</span></div>
       </div>
 
       <button id="spin-btn" onclick="spin()">
@@ -1287,8 +1495,9 @@
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v1.9.1 · Lucky Paws Casino</summary>
+    <summary>v2.0 · Lucky Paws Casino</summary>
     <div id="changelog">
+      <b>v2.0</b> — Full visual reskin: new “Neon Gold” identity (midnight plum, gold × magenta, cyan accents), Audiowide + Chakra Petch type, marquee frame lights, living background, breathing spin button, big-win light rays, themed win lines &amp; particles, bet buttons now show true cost per spin, subtitle removed<br>
       <b>v1.9.1</b> — Paw Race: cat racers now have fun names (Chairman Meow, Dumpling, Soy Sauce…), removed CPU/crab references, result messages updated, achievement renamed to Paw Champ<br>
       <b>v1.9</b> — Win lines crisp on retina (DPR-scaled canvas), win description shows wild involvement (🐙+🔮×3), total bet display (bet×lines), persistent last-win amount in balance bar<br>
       <b>v1.8</b> — Rebalanced symbols back to cat theme: replaced crab/pufferfish/shrimp/butterfly with 😸 Happy Neko, 🐾 Lucky Paw, 🏮 Red Lantern, 🔔 Lucky Bell. Paw Race replaces Crab Race (🐱 cats run!), Happy Neko triggers Dragon Egg<br>
@@ -2871,7 +3080,7 @@ function drawWinLines(winningPaylines) {
   if (!winningPaylines.length) return;
 
   const canvasRect = canvas.getBoundingClientRect();
-  const lineColors = ['#FFD700','#FF4444','#00FF88','#00BFFF','#FF69B4','#FF8C00','#9B59B6','#FFF176','#7FFFD4'];
+  const lineColors = ['#FFD700','#FF4F8E','#00F5FF','#FF7ACE','#FFB347','#B44CFF','#00FF9D','#FFF176','#FF5C7A'];
 
   winningPaylines.forEach((line, idx) => {
     const color = lineColors[idx % lineColors.length];
@@ -2982,11 +3191,11 @@ window.addEventListener('resize', () => { canvas.width = window.innerWidth; canv
 
 function fireParticles(count, type) {
   const colors = {
-    jackpot: ['#FFD700','#FFA500','#FF4500','#FF0000','#FFD700','#FFFFFF'],
-    big:     ['#FFD700','#FF8C00','#FFA500','#FFD700'],
-    win:     ['#FFD700','#00FF88','#FF69B4','#00BFFF'],
-    bonus:   ['#9B59B6','#FFD700','#FF4444','#00FF88'],
-    free:    ['#00FF88','#00BFFF','#FFFFFF','#7FFFD4'],
+    jackpot: ['#FFD700','#FF4F8E','#FFB347','#FFFFFF','#FF7ACE','#00F5FF'],
+    big:     ['#FFD700','#FFB347','#FF4F8E','#FFD700'],
+    win:     ['#FFD700','#FF7ACE','#00F5FF','#FFB347'],
+    bonus:   ['#B44CFF','#FFD700','#FF4F8E','#00FF9D'],
+    free:    ['#00FF88','#00F5FF','#FFFFFF','#FF7ACE'],
   };
   const col = colors[type] || colors.win;
   const cx = window.innerWidth / 2;
@@ -3130,5 +3339,6 @@ function showAddToHomeHint() {
 init();
 showAddToHomeHint();
 </script>
+
 </body>
 </html>
