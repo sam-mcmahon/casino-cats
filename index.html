@@ -233,14 +233,6 @@
     overflow: hidden;
   }
 
-  #machine-frame::before {
-    content: '🐉 幸運 🐉';
-    position: absolute;
-    top: 8px; left: 50%; transform: translateX(-50%);
-    font-size: 0.75rem; color: rgba(255,180,0,0.5);
-    letter-spacing: 8px;
-    pointer-events: none;
-  }
 
   /* ===== REELS ===== */
   #reels-container {
@@ -286,12 +278,17 @@
   .reel {
     flex: 1;
     min-width: 0;
-    height: min(340px, 70vw);
+    height: calc(min(85px, 17.5vw) * 4);  /* exactly 4 cell heights */
     overflow: hidden;
     border-radius: 8px;
     position: relative;
     background: rgba(0,0,0,0.5);
     border: 1px solid #330000;
+  }
+  @media (max-height: 750px) {
+    .reel {
+      height: calc(min(68px, 14vw) * 4);
+    }
   }
 
   .reel-strip {
@@ -1118,6 +1115,15 @@
     padding: 10px 14px;
   }
   #changelog b { color: rgba(255,200,100,0.65); }
+
+  .reel-cell.wild-stacked {
+    background: radial-gradient(ellipse, rgba(155,89,182,0.35) 0%, transparent 80%) !important;
+    animation: wildStack 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes wildStack {
+    from { box-shadow: inset 0 0 8px rgba(155,89,182,0.4); }
+    to   { box-shadow: inset 0 0 20px rgba(196,76,255,0.8); }
+  }
 </style>
 </head>
 <body>
@@ -1193,17 +1199,17 @@
     </div>
 
     <!-- COINS DISPLAY -->
-    <div id="coins-display">🪙 <span id="player-coins">2,000</span></div>
+    <div id="coins-display"><span id="player-coins">$2,000</span></div>
 
     <!-- CONTROLS -->
     <div id="controls">
       <div class="bet-group">
         <div class="control-label">BET</div>
         <div class="bet-buttons">
-          <button class="bet-btn active" onclick="setBet(5)" data-bet="5">5</button>
-          <button class="bet-btn" onclick="setBet(10)" data-bet="10">10</button>
-          <button class="bet-btn" onclick="setBet(25)" data-bet="25">25</button>
-          <button class="bet-btn" onclick="setBet(50)" data-bet="50">50</button>
+          <button class="bet-btn active" onclick="setBet(5)" data-bet="5">$5</button>
+          <button class="bet-btn" onclick="setBet(10)" data-bet="10">$10</button>
+          <button class="bet-btn" onclick="setBet(25)" data-bet="25">$25</button>
+          <button class="bet-btn" onclick="setBet(50)" data-bet="50">$50</button>
           <button class="bet-btn" onclick="setBet(100)" data-bet="100">MAX</button>
         </div>
         <div class="control-label" style="margin-top:4px">LINES: <span id="lines-display">9</span></div>
@@ -1243,7 +1249,8 @@
       <div>🐠×5 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
       <div>🔮×3 <b style="color:#FFD700">FORTUNE WHEEL</b> – Spin for riches!</div>
       <div>🦀×5 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
-      <div>🐙 = <b style="color:#9B59B6">WILD</b> (sub any symbol) · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🐙 = <b style="color:#9B59B6">WILD</b> (stacks!) · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🌙×3 = <b style="color:#C44CFF">DRAGON STAMPEDE</b> free spins</div>
       <div>🌙 <b style="color:#C8A8FF">LUCKY MOON</b> – rare high-value symbol</div>
       <div>🌸×4 <b style="color:#00FF88">FREE SPINS</b> · 🔥 <b style="color:#FF6644">HOT STREAK</b></div>
     </div>
@@ -1265,8 +1272,9 @@
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v1.6 · Lucky Paws Casino</summary>
+    <summary>v1.7 · Lucky Paws Casino</summary>
     <div id="changelog">
+      <b>v1.7</b> — Dollar currency display, win line alignment fix (dead space removed), wild stacking (2+ wilds = full reel wild), Dragon Stampede bonus (🌙×3 → multiplying free spins), dragon decoration removed<br>
       <b>v1.6</b> — 14 symbols (added Moon 🌙, Butterfly 🦋, Shrimp 🍤), WILD badge on Octopus cells, mini games now require 3+ of symbol on a payline, Dragon Egg fully random prize pool with Fisher-Yates shuffle, version footer visible on mobile<br>
       <b>v1.5</b> — Mobile layout fix (spin button always visible), Dragon Egg real variance, mini game combo trigger banners, hot streak/notification ghost fixes, bottom artifact removed, win frequency reduced<br>
       <b>v1.4</b> — Remove multi-player profiles, single player with compact coins display<br>
@@ -1468,6 +1476,10 @@ const PAYLINES = [
   [[0,2],[1,1],[2,2],[3,1],[4,2]],
 ];
 
+function fmt$(n) {
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
 // ===== GAME STATE =====
 const SAVE_KEY = 'luckypaws_v2';
 
@@ -1527,6 +1539,9 @@ let history = [];
 const KEYS_NEEDED = 5;
 let vaultReady = false; // set when keys hit threshold, consumed after current spin
 let lastSpinWasFree = false;
+let stampedeActive = false;
+let stampedeMult = 1;
+let stampedeWildReels = new Set();
 
 // ===== ACHIEVEMENTS =====
 const ACHIEVEMENTS = [
@@ -1991,7 +2006,7 @@ function triggerJackpot() {
   soundJackpot();
   showBigWin(prize, '🏆 JACKPOT! 🏆');
   fireParticles(150, 'jackpot');
-  showNotification('🏆', `JACKPOT! Won ${prize.toLocaleString()} coins!`);
+  showNotification('🏆', `JACKPOT! Won ${fmt$(prize)}!`);
   checkAchievements();
   saveState();
 }
@@ -2656,11 +2671,11 @@ function updateAllUI() {
 
 function updatePlayerUI() {
   const p = state.player;
-  document.getElementById('player-coins').textContent = p.coins.toLocaleString();
+  document.getElementById('player-coins').textContent = fmt$(p.coins);
 }
 
 function updateJackpotDisplay() {
-  document.getElementById('jackpot-amount').textContent = state.jackpot.toLocaleString();
+  document.getElementById('jackpot-amount').textContent = fmt$(state.jackpot);
 }
 
 function updateBetButtons() {
@@ -2698,7 +2713,7 @@ function showWinDisplay(amount, descs) {
   const amtEl = document.getElementById('win-amount');
   const desc = descs.slice(0, 2).join(' · ');
   msgEl.textContent = desc;
-  amtEl.textContent = '+' + amount.toLocaleString() + ' 🪙';
+  amtEl.textContent = '+' + fmt$(amount);
   msgEl.className = 'visible';
   amtEl.className = 'visible';
   updateStreakDisplay();
@@ -2783,7 +2798,7 @@ function drawWinLines(winningPaylines) {
 function showBigWin(amount, label) {
   const overlay = document.getElementById('bigwin-overlay');
   document.getElementById('bigwin-text').textContent = label;
-  document.getElementById('bigwin-amount').textContent = '+' + amount.toLocaleString() + ' 🪙';
+  document.getElementById('bigwin-amount').textContent = '+' + fmt$(amount);
   overlay.classList.add('active');
   setTimeout(() => overlay.classList.remove('active'), 3000);
 }
