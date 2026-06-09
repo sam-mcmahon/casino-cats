@@ -883,20 +883,22 @@
   #free-spins-bar {
     display: none;
     text-align: center;
-    padding: 4px;
-    background: linear-gradient(90deg, transparent, rgba(0,150,0,0.2), transparent);
-    border-top: 1px solid rgba(0,200,0,0.3);
-    border-bottom: 1px solid rgba(0,200,0,0.3);
+    padding: 7px 12px;
+    background: linear-gradient(90deg, #001a00, #003a00, #001a00);
+    border: 2px solid #00CC66;
+    border-radius: 8px;
     color: #00FF88;
-    font-size: 0.85rem;
-    font-weight: 700;
-    animation: freeSpin 1s ease-in-out infinite alternate;
-    margin-bottom: 4px;
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+    font-weight: 900;
+    letter-spacing: 1px;
+    animation: freeSpinBar 0.8s ease-in-out infinite alternate;
+    margin-bottom: 6px;
+    box-shadow: 0 0 12px rgba(0,255,136,0.25), inset 0 0 12px rgba(0,180,80,0.1);
   }
 
-  @keyframes freeSpin {
-    from { opacity: 0.7; }
-    to   { opacity: 1; text-shadow: 0 0 10px rgba(0,255,136,0.8); }
+  @keyframes freeSpinBar {
+    from { box-shadow: 0 0 8px rgba(0,255,136,0.2); }
+    to   { box-shadow: 0 0 20px rgba(0,255,136,0.6), inset 0 0 12px rgba(0,180,80,0.15); }
   }
 
   /* ===== MULTIPLIER ===== */
@@ -1024,7 +1026,7 @@
 
 <div id="machine">
   <div id="machine-frame">
-    <div id="free-spins-bar" id="free-spins-bar">⭐ FREE SPINS: <span id="free-spins-count">0</span> REMAINING ⭐</div>
+    <div id="free-spins-bar">⭐ FREE SPINS ×2 — <span id="free-spins-count">0</span> REMAINING ⭐</div>
     <div id="multiplier-display"></div>
 
     <!-- REELS -->
@@ -1333,7 +1335,7 @@ let isSpinning = false;
 let autoSpin = false;
 let autoSpinTimer = null;
 let freeSpins = 0;
-let freeSpinMultiplier = 2;
+let freeSpinMultiplier = 1;
 let streakMultiplier = 1;
 let reelSymbols = [[],[],[],[],[]]; // 3 symbols per reel (visible window)
 let spinIntervals = [];
@@ -1546,7 +1548,7 @@ function evaluateResult() {
   }
 
   // Apply streak multiplier
-  const multiplier = streakMultiplier * (freeSpins >= 0 && freeSpinMultiplier > 1 ? freeSpinMultiplier : 1);
+  const multiplier = streakMultiplier * (freeSpins > 0 && freeSpinMultiplier > 1 ? freeSpinMultiplier : 1);
   if (multiplier > 1) totalWin = Math.floor(totalWin * multiplier);
 
   // Highlight winning cells and draw paylines
@@ -1627,8 +1629,8 @@ function evaluateResult() {
     freeSpinMultiplier = 2;
     updateFreeSpinsBar();
     soundFreeSpins();
+    haptic('heavy');
     sessionStats.freeSpinTriggers++;
-    showNotification('⭐', '10 FREE SPINS x2 MULTIPLIER!');
     fireParticles(40, 'free');
     finishSpin();
   });
@@ -2201,6 +2203,7 @@ function updateFreeSpinsBar() {
     if (countEl) countEl.textContent = freeSpins;
   } else {
     bar.style.display = 'none';
+    freeSpinMultiplier = 1; // reset multiplier when free spins end
   }
 }
 
