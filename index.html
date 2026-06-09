@@ -120,17 +120,17 @@
 
   .player-btn:hover:not(.active) { border-color: #AA4400; }
 
-  .player-name { font-weight: 700; font-size: clamp(0.75rem, 3.5vw, 0.95rem); color: var(--gold); }
-  .player-avatar { font-size: clamp(1.4rem, 5vw, 1.8rem); display: block; }
+  .player-name { font-weight: 700; font-size: clamp(0.85rem, 4vw, 1.05rem); color: var(--gold); }
+  .player-avatar { font-size: clamp(1.7rem, 6vw, 2.1rem); display: block; }
   .player-coins {
-    font-size: clamp(0.7rem, 3vw, 0.85rem); color: #FFB84D;
+    font-size: clamp(0.82rem, 3.6vw, 0.95rem); color: #FFD060; font-weight: 700;
     background: rgba(0,0,0,0.3);
     border-radius: 6px;
-    padding: 2px 4px;
+    padding: 2px 5px;
     margin-top: 2px;
     display: inline-block;
   }
-  .player-streak { font-size: 0.65rem; color: #FF6644; margin-top: 1px; min-height: 12px; }
+  .player-streak { font-size: 0.7rem; color: #FF6644; margin-top: 1px; min-height: 12px; }
 
   /* ===== JACKPOT ===== */
   #jackpot-bar {
@@ -167,6 +167,90 @@
   }
 
   @keyframes shimmer { to { background-position: 200% center; } }
+
+  /* ===== DRAGON VAULT PROGRESS ===== */
+  #vault-bar {
+    width: 100%;
+    max-width: 900px;
+    padding: 2px 12px 4px;
+  }
+  #vault-inner {
+    background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030);
+    border: 2px solid #8E44AD;
+    border-radius: 10px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 12px rgba(142,68,173,0.3);
+  }
+  #vault-label { font-size: clamp(0.72rem, 3vw, 0.85rem); font-weight: 700; color: #D7A6F0; white-space: nowrap; }
+  #vault-track {
+    flex: 1; min-width: 0;
+    height: 14px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid #5a2a7a;
+  }
+  #vault-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #8E44AD, #C44CFF, #FFD700);
+    border-radius: 7px;
+    transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  #vault-keys-text { font-size: clamp(0.72rem, 3vw, 0.85rem); font-weight: 900; color: #FFD700; white-space: nowrap; }
+  #vault-inner.ready {
+    animation: vaultReady 0.7s ease-in-out infinite alternate;
+    cursor: pointer;
+  }
+  @keyframes vaultReady {
+    from { box-shadow: 0 0 12px rgba(255,215,0,0.4); border-color: #C44CFF; }
+    to   { box-shadow: 0 0 28px rgba(255,215,0,0.9); border-color: #FFD700; }
+  }
+
+  /* ===== GRAND VAULT MINIGAME ===== */
+  #vault-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .vault-tile {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    border: 2px solid #8E44AD;
+    background: linear-gradient(135deg, #2a0050, #1a0030);
+    font-size: 1.8rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #D7A6F0;
+  }
+  .vault-tile:active { transform: scale(0.94); }
+  .vault-tile.revealed {
+    animation: tileFlip 0.4s ease;
+    border-color: #FFD700;
+    background: linear-gradient(135deg, #5a2a7a, #3a1a5a);
+    color: #FFD700;
+    font-weight: 900;
+    font-size: 1.1rem;
+    cursor: default;
+  }
+  .vault-tile.stop { background: linear-gradient(135deg, #661111, #330808); border-color: #FF4444; }
+  .vault-tile.grand { background: linear-gradient(135deg, #FFD700, #FF8C00); border-color: #FFF176; color: #5a2a00; }
+  @keyframes tileFlip {
+    0% { transform: rotateY(90deg) scale(0.8); }
+    100% { transform: rotateY(0) scale(1); }
+  }
+  #vault-pot {
+    font-size: 1.3rem; font-weight: 900; color: #FFD700;
+    margin: 4px 0 10px;
+    text-shadow: 0 0 12px rgba(255,215,0,0.6);
+  }
 
   /* ===== MACHINE FRAME ===== */
   #machine {
@@ -243,7 +327,7 @@
   .reel {
     flex: 1;
     min-width: 0;
-    height: min(260px, 32vw);
+    height: min(340px, 70vw);
     overflow: hidden;
     border-radius: 8px;
     position: relative;
@@ -259,11 +343,11 @@
   }
 
   .reel-cell {
-    height: min(80px, 10.5vw);
+    height: min(85px, 17.5vw);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(1.3rem, 6vw, 2.8rem);
+    font-size: clamp(1.8rem, 9vw, 2.8rem);
     position: relative;
     border-bottom: 1px solid rgba(100,0,0,0.3);
     transition: background 0.2s;
@@ -281,17 +365,8 @@
     to   { transform: scale(1.15); filter: brightness(1.5) drop-shadow(0 0 8px gold); }
   }
 
-  /* Middle row highlight */
-  #middle-highlight {
-    position: absolute;
-    top: calc(33.33% - 1px);
-    left: 0; right: 0;
-    height: calc(33.33% + 2px);
-    border-top: 2px solid rgba(255,180,0,0.4);
-    border-bottom: 2px solid rgba(255,180,0,0.4);
-    pointer-events: none;
-    z-index: 5;
-  }
+  /* Middle row highlight (hidden with 4-row grid) */
+  #middle-highlight { display: none; }
 
   /* ===== WIN DISPLAY ===== */
   #win-display {
@@ -382,14 +457,14 @@
   .bet-btn {
     background: rgba(60,10,0,0.8);
     border: 1px solid #660000;
-    border-radius: 6px;
-    color: #FFB84D;
-    font-size: 0.75rem;
+    border-radius: 7px;
+    color: #FFD060;
+    font-size: 0.95rem;
     font-weight: 700;
-    /* 44px minimum touch target */
-    min-height: 36px;
-    min-width: 36px;
-    padding: 4px 8px;
+    /* large touch target for older players */
+    min-height: 44px;
+    min-width: 44px;
+    padding: 6px 10px;
     cursor: pointer;
     transition: all 0.15s;
   }
@@ -401,9 +476,9 @@
     background: radial-gradient(circle at 35% 35%, #FF6600, #CC2200 60%, #990000);
     border: 4px solid var(--gold);
     border-radius: 50%;
-    width: min(100px, 22vw);
-    height: min(100px, 22vw);
-    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    width: min(120px, 28vw);
+    height: min(120px, 28vw);
+    font-size: clamp(2rem, 8vw, 2.6rem);
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
     box-shadow: 0 0 25px rgba(255,100,0,0.6), 0 5px 0 #770000, inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,180,0,0.3);
@@ -420,7 +495,18 @@
   }
 
   #spin-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
-  #spin-btn-label { font-size: clamp(0.45rem, 1.5vw, 0.55rem); letter-spacing: 2px; color: rgba(255,230,180,0.9); font-weight: 700; }
+  #spin-btn-label { font-size: clamp(0.55rem, 2vw, 0.7rem); letter-spacing: 2px; color: rgba(255,230,180,0.95); font-weight: 700; margin-top: 2px; }
+
+  /* Free-spin mode: make the spin button unmistakable */
+  #spin-btn.free-mode {
+    background: radial-gradient(circle at 35% 35%, #00FF88, #00AA55 60%, #007733);
+    border-color: #AFFFD0;
+    animation: freeSpinBtn 0.7s ease-in-out infinite alternate;
+  }
+  @keyframes freeSpinBtn {
+    from { box-shadow: 0 0 20px rgba(0,255,136,0.5), 0 5px 0 #004422; transform: scale(1); }
+    to   { box-shadow: 0 0 35px rgba(0,255,136,0.9), 0 5px 0 #004422; transform: scale(1.05); }
+  }
 
   .right-controls {
     display: flex;
@@ -433,14 +519,15 @@
     background: rgba(40,10,0,0.8);
     border: 1px solid #550000;
     border-radius: 8px;
-    color: #FFB84D;
-    font-size: clamp(0.65rem, 2.5vw, 0.75rem);
-    /* 44px touch target */
-    min-height: 34px;
-    padding: 4px 8px;
+    color: #FFD060;
+    font-size: clamp(0.72rem, 3vw, 0.85rem);
+    font-weight: 700;
+    /* large touch target for older players */
+    min-height: 42px;
+    padding: 6px 10px;
     cursor: pointer;
     transition: all 0.15s;
-    display: flex; align-items: center; gap: 4px;
+    display: flex; align-items: center; gap: 5px;
     width: 100%;
     justify-content: center;
   }
@@ -737,30 +824,34 @@
   }
 
   /* ===== CRAB RACE ===== */
+  #crab-race-wrap { width: 100%; }
   .crab-lane {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 8px 0;
+    margin: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
     background: rgba(0,0,0,0.3);
     border-radius: 8px;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #440000;
   }
 
   .crab-lane.your-crab { border-color: var(--gold); background: rgba(60,30,0,0.4); }
 
   .crab-racer {
-    font-size: 1.5rem;
+    font-size: 2rem;
     transition: transform 0.05s linear;
     flex-shrink: 0;
   }
 
   .crab-track {
     flex: 1;
-    height: 8px;
+    min-width: 0;
+    height: 14px;
     background: rgba(100,50,0,0.4);
-    border-radius: 4px;
+    border-radius: 7px;
     overflow: hidden;
     position: relative;
   }
@@ -768,14 +859,14 @@
   .crab-progress {
     height: 100%;
     background: linear-gradient(90deg, #CC2200, #FF6600);
-    border-radius: 4px;
+    border-radius: 7px;
     width: 0%;
     transition: width 0.1s linear;
   }
 
   .your-crab .crab-progress { background: linear-gradient(90deg, var(--gold), #FFF176); }
 
-  .crab-label { font-size: 0.75rem; color: #FF9944; width: 50px; text-align: center; flex-shrink: 0; }
+  .crab-label { font-size: 0.8rem; font-weight: 700; color: #FF9944; width: 58px; text-align: center; flex-shrink: 0; }
 
   /* ===== NOTIFICATION ===== */
   #notification {
@@ -883,17 +974,21 @@
   #free-spins-bar {
     display: none;
     text-align: center;
-    padding: 7px 12px;
-    background: linear-gradient(90deg, #001a00, #003a00, #001a00);
+    padding: 9px 12px;
+    /* clear the 🐉 幸運 🐉 frame decoration at the top */
+    margin-top: 20px;
+    background: linear-gradient(90deg, #001a00, #004a00, #001a00);
     border: 2px solid #00CC66;
     border-radius: 8px;
     color: #00FF88;
-    font-size: clamp(0.75rem, 3vw, 0.9rem);
+    font-size: clamp(0.9rem, 3.6vw, 1.05rem);
     font-weight: 900;
     letter-spacing: 1px;
     animation: freeSpinBar 0.8s ease-in-out infinite alternate;
     margin-bottom: 6px;
     box-shadow: 0 0 12px rgba(0,255,136,0.25), inset 0 0 12px rgba(0,180,80,0.1);
+    position: relative;
+    z-index: 6;
   }
 
   @keyframes freeSpinBar {
@@ -1024,6 +1119,15 @@
   </div>
 </div>
 
+<!-- DRAGON VAULT PROGRESS -->
+<div id="vault-bar">
+  <div id="vault-inner" onclick="vaultBarClicked()">
+    <span id="vault-label">🔑 DRAGON VAULT</span>
+    <div id="vault-track"><div id="vault-fill"></div></div>
+    <span id="vault-keys-text">0/5</span>
+  </div>
+</div>
+
 <div id="machine">
   <div id="machine-frame">
     <div id="free-spins-bar">⭐ FREE SPINS ×2 — <span id="free-spins-count">0</span> REMAINING ⭐</div>
@@ -1086,15 +1190,16 @@
   </div>
   <div class="info-card">
     <h3>⚡ Special Features</h3>
-    <div style="font-size:0.78rem; line-height:1.8; color:rgba(255,200,150,0.8)">
+    <div style="font-size:0.82rem; line-height:1.9; color:rgba(255,200,150,0.85)">
+      <div>🐉🔑 <b style="color:#C44CFF">DRAGON VAULT</b> – Collect 5 keys → GRAND pick game!</div>
       <div>🐱×3 <b style="color:#FFD700">CAT SHRINE</b> – Pick a lucky cat!</div>
-      <div>🐠×4 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
+      <div>🐲×3 <b style="color:#FFD700">DRAGON EGG</b> – Hatch a prize!</div>
+      <div>🧧×4 <b style="color:#FFD700">ENVELOPE RAIN</b> – Tap to grab!</div>
+      <div>🐠×5 <b style="color:#FFD700">OCEAN FRENZY</b> – Catch sea creatures!</div>
       <div>🔮×3 <b style="color:#FFD700">FORTUNE WHEEL</b> – Spin for riches!</div>
-      <div>🦀×4 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
-      <div>🐙 = <b style="color:#9B59B6">WILD</b> – Substitutes all!</div>
-      <div>💎×5 = <b style="color:#FFD700">JACKPOT ELIGIBLE</b></div>
-      <div>🌀 <b style="color:#00FF88">FREE SPINS</b> – 3+ scatter 🌸</div>
-      <div>🔥 <b style="color:#FF6644">HOT STREAK</b> – Win 3× in a row!</div>
+      <div>🦀×5 <b style="color:#FFD700">CRAB RACE</b> – Back the right crab!</div>
+      <div>🐙 = <b style="color:#9B59B6">WILD</b> · 💎×5 = <b style="color:#FFD700">JACKPOT</b></div>
+      <div>🌸×4 <b style="color:#00FF88">FREE SPINS</b> · 🔥 <b style="color:#FF6644">HOT STREAK</b></div>
     </div>
   </div>
 </div>
@@ -1261,7 +1366,10 @@ const SYMBOLS = [
 ];
 
 // Weighted reel symbols (higher rarity = less frequent)
-const REEL_WEIGHTS = [1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 10];
+// blossom (free-spins scatter) lowered to make free spins rarer
+const REEL_WEIGHTS = [1, 2, 2, 3, 3, 4, 5, 6, 7, 4, 10];
+
+const NUM_ROWS = 4; // 5 reels x 4 rows
 
 function weightedRandom() {
   const totalWeight = REEL_WEIGHTS.reduce((a,b) => a+b, 0);
@@ -1273,21 +1381,25 @@ function weightedRandom() {
   return SYMBOLS.length - 1;
 }
 
-// ===== PAYLINES (5 reels x 3 rows) =====
-// Each payline is an array of [reel, row] pairs
+// ===== PAYLINES (5 reels x 4 rows) =====
+// Each payline is an array of [reel, row] pairs (row 0=top .. 3=bottom)
 const PAYLINES = [
-  // Horizontals
-  [[0,1],[1,1],[2,1],[3,1],[4,1]], // middle
-  [[0,0],[1,0],[2,0],[3,0],[4,0]], // top
-  [[0,2],[1,2],[2,2],[3,2],[4,2]], // bottom
-  // V shapes
-  [[0,0],[1,1],[2,2],[3,1],[4,0]], // V
-  [[0,2],[1,1],[2,0],[3,1],[4,2]], // inverted V
-  // Zigzags
-  [[0,0],[1,1],[2,0],[3,1],[4,0]],
+  // 4 straight horizontals
+  [[0,0],[1,0],[2,0],[3,0],[4,0]],
+  [[0,1],[1,1],[2,1],[3,1],[4,1]],
+  [[0,2],[1,2],[2,2],[3,2],[4,2]],
+  [[0,3],[1,3],[2,3],[3,3],[4,3]],
+  // V / inverted-V
+  [[0,0],[1,1],[2,2],[3,1],[4,0]],
+  [[0,3],[1,2],[2,1],[3,2],[4,3]],
+  // diagonals
+  [[0,0],[1,1],[2,2],[3,3],[4,3]],
+  [[0,3],[1,2],[2,1],[3,0],[4,0]],
+  // zigzags
+  [[0,1],[1,0],[2,1],[3,0],[4,1]],
+  [[0,2],[1,3],[2,2],[3,3],[4,2]],
+  [[0,1],[1,2],[2,1],[3,2],[4,1]],
   [[0,2],[1,1],[2,2],[3,1],[4,2]],
-  [[0,1],[1,0],[2,1],[3,2],[4,1]],
-  [[0,1],[1,2],[2,1],[3,0],[4,1]],
 ];
 
 // ===== GAME STATE =====
@@ -1296,9 +1408,9 @@ const SAVE_KEY = 'luckypaws_v2';
 function defaultState() {
   return {
     players: [
-      { name: 'Ellen', avatar: '👩‍🦳', coins: 1000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, achievements: [] },
-      { name: 'Loren', avatar: '👩', coins: 1000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, achievements: [] },
-      { name: 'You',   avatar: '🧑', coins: 1000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, achievements: [] },
+      { name: 'Ellen', avatar: '👩‍🦳', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
+      { name: 'Loren', avatar: '👩', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
+      { name: 'You',   avatar: '🧑', coins: 2000, totalWon: 0, totalSpins: 0, bigWins: 0, consecutiveWins: 0, keys: 0, vaultOpens: 0, achievements: [] },
     ],
     currentPlayer: 0,
     jackpot: 10000,
@@ -1317,6 +1429,11 @@ function loadState() {
       const s = JSON.parse(saved);
       // merge to avoid missing keys on schema changes
       state.players = s.players || state.players;
+      // backfill new per-player fields for older saves
+      state.players.forEach(p => {
+        if (p.keys == null) p.keys = 0;
+        if (p.vaultOpens == null) p.vaultOpens = 0;
+      });
       state.currentPlayer = s.currentPlayer || 0;
       state.jackpot = s.jackpot || 10000;
       state.bet = s.bet || 5;
@@ -1337,9 +1454,12 @@ let autoSpinTimer = null;
 let freeSpins = 0;
 let freeSpinMultiplier = 1;
 let streakMultiplier = 1;
-let reelSymbols = [[],[],[],[],[]]; // 3 symbols per reel (visible window)
+let reelSymbols = [[],[],[],[],[]]; // NUM_ROWS symbols per reel (visible window)
 let spinIntervals = [];
 let history = [];
+const KEYS_NEEDED = 5;
+let vaultReady = false; // set when keys hit threshold, consumed after current spin
+let lastSpinWasFree = false;
 
 // ===== ACHIEVEMENTS =====
 const ACHIEVEMENTS = [
@@ -1357,6 +1477,8 @@ const ACHIEVEMENTS = [
   { id: 'broke',          label: '😅 Gambler\'s Spirit',icon: '😅', desc: 'Go below 50 coins',              check: p => p.coins < 50 && p.totalSpins > 5 },
   { id: 'spin_50',        label: '🎡 Spinner',          icon: '🎡', desc: 'Complete 50 spins',              check: p => p.totalSpins >= 50 },
   { id: 'dragon',         label: '🐉 Dragon Tamer',     icon: '🐉', desc: 'Get 5 dragons on a line',        check: (p,s) => (s.dragonFives||0) >= 1 },
+  { id: 'vault',          label: '🐉 Vault Breaker',    icon: '🔑', desc: 'Open the Dragon Vault',          check: p => (p.vaultOpens||0) >= 1 },
+  { id: 'vault_3',        label: '👑 Vault Lord',       icon: '👑', desc: 'Open the Dragon Vault 3 times',  check: p => (p.vaultOpens||0) >= 3 },
 ];
 
 let sessionStats = { catBonuses:0, fishBonuses:0, biggestWin:0, jackpotHits:0, freeSpinTriggers:0, wheelSpins:0, crabWins:0, dragonFives:0 };
@@ -1368,6 +1490,9 @@ function init() {
   buildAchievements();
   initReels();
   updateAllUI();
+  const linesEl = document.getElementById('lines-display');
+  if (linesEl) linesEl.textContent = PAYLINES.length;
+  updateVaultBar();
 }
 
 function buildPaytable() {
@@ -1416,9 +1541,15 @@ function checkAchievements() {
 }
 
 // ===== REEL INIT =====
+function randomReel() {
+  const col = [];
+  for (let i = 0; i < NUM_ROWS; i++) col.push(weightedRandom());
+  return col;
+}
+
 function initReels() {
   for (let r = 0; r < 5; r++) {
-    reelSymbols[r] = [weightedRandom(), weightedRandom(), weightedRandom()];
+    reelSymbols[r] = randomReel();
     renderReel(r);
   }
 }
@@ -1458,9 +1589,11 @@ function spin() {
   document.getElementById('spin-btn').disabled = true;
 
   if (freeSpins > 0) {
+    lastSpinWasFree = true;
     freeSpins--;
     updateFreeSpinsBar();
   } else {
+    lastSpinWasFree = false;
     p.coins -= cost;
     state.jackpot += Math.floor(cost * 0.05);
   }
@@ -1478,14 +1611,14 @@ function spin() {
   // Determine final result
   const finalResult = [];
   for (let r = 0; r < 5; r++) {
-    finalResult.push([weightedRandom(), weightedRandom(), weightedRandom()]);
+    finalResult.push(randomReel());
   }
 
   // Rapid cycling animation
   const cycleIntervals = [];
   for (let r = 0; r < 5; r++) {
     cycleIntervals[r] = setInterval(() => {
-      for (let row = 0; row < 3; row++) {
+      for (let row = 0; row < NUM_ROWS; row++) {
         const cell = document.getElementById(`cell-${r}-${row}`);
         if (cell) cell.textContent = SYMBOLS[weightedRandom()].emoji;
       }
@@ -1610,27 +1743,34 @@ function evaluateResult() {
   // Check dragon 5
   if (dragonCount >= 5) sessionStats.dragonFives++;
 
+  // Earn Dragon Vault keys on paid spins (small chance) — builds toward grand feature
+  if (!lastSpinWasFree) maybeAwardKey();
+
   updatePlayerUI(state.currentPlayer);
   checkAchievements();
   saveState();
 
-  // Queue mini-games
+  // Queue mini-games (thresholds tuned up for the larger 5x4 grid so
+  // bonuses stay special and there's more normal spinning in between)
   let miniGameDelay = totalWin > 0 ? 1200 : 600;
 
   const miniGameQueue = [];
   if (catCount >= 3)     miniGameQueue.push(() => triggerCatShrine());
   if (dragonCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerDragonEgg());
-  if (hongbaoCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerHongbaoRain());
-  if (fishCount >= 4 && !miniGameQueue.length)    miniGameQueue.push(() => triggerFishFrenzy());
+  if (hongbaoCount >= 4 && !miniGameQueue.length) miniGameQueue.push(() => triggerHongbaoRain());
+  if (fishCount >= 5 && !miniGameQueue.length)    miniGameQueue.push(() => triggerFishFrenzy());
   if (fortuneCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => triggerFortuneWheel());
-  if (crabCount >= 4 && !miniGameQueue.length)    miniGameQueue.push(() => triggerCrabRace());
-  if (blossomCount >= 3 && !miniGameQueue.length) miniGameQueue.push(() => {
-    freeSpins += 10;
+  if (crabCount >= 5 && !miniGameQueue.length)    miniGameQueue.push(() => triggerCrabRace());
+  if (blossomCount >= 4 && !miniGameQueue.length) miniGameQueue.push(() => {
+    // First trigger grants fewer spins; retriggers stack only a little
+    const award = freeSpins > 0 ? 4 : 8;
+    freeSpins = Math.min(freeSpins + award, 20);
     freeSpinMultiplier = 2;
     updateFreeSpinsBar();
     soundFreeSpins();
     haptic('heavy');
     sessionStats.freeSpinTriggers++;
+    showNotification('⭐', `+${award} FREE SPINS! Press the green SPIN.`);
     fireParticles(40, 'free');
     finishSpin();
   });
@@ -1680,8 +1820,20 @@ function evaluateLine(lineSymbols, bet) {
 function finishSpin() {
   isSpinning = false;
   document.getElementById('spin-btn').disabled = false;
+  updateFreeSpinModeUI();
 
-  if (autoSpin && freeSpins <= 0) {
+  // Grand feature takes priority once the vault is charged
+  if (vaultReady && freeSpins <= 0) {
+    vaultReady = false;
+    setTimeout(() => triggerGrandVault(), 700);
+    return;
+  }
+
+  // Free spins are NOT auto-played — the player presses SPIN each time.
+  if (freeSpins > 0) return;
+
+  // Auto-spin only applies to normal paid spins
+  if (autoSpin) {
     const p = state.players[state.currentPlayer];
     const cost = state.bet * PAYLINES.length;
     if (p.coins >= cost) {
@@ -1691,8 +1843,19 @@ function finishSpin() {
       document.getElementById('auto-btn').classList.remove('active');
       showNotification('💸', 'Not enough coins for auto spin!');
     }
-  } else if (freeSpins > 0) {
-    setTimeout(() => spin(), 800);
+  }
+}
+
+// Update the spin button to clearly show free-spin mode
+function updateFreeSpinModeUI() {
+  const btn = document.getElementById('spin-btn');
+  const label = document.getElementById('spin-btn-label');
+  if (freeSpins > 0) {
+    btn.classList.add('free-mode');
+    if (label) label.textContent = 'FREE SPIN';
+  } else {
+    btn.classList.remove('free-mode');
+    if (label) label.textContent = 'SPIN';
   }
 }
 
@@ -1729,9 +1892,173 @@ function openMiniGame(title, subtitle, contentHTML, onClose) {
 function closeMiniGame() {
   stopCrabRace(); // safe no-op if no race running
   document.getElementById('minigame-overlay').classList.remove('active');
+  const wasVault = window._isVaultGame;
+  window._isVaultGame = false;
   if (window._mgOnClose) window._mgOnClose();
   window._mgOnClose = null;
+  // Completing any regular bonus rewards a Dragon Vault key (not the vault itself)
+  if (!wasVault) awardKey(1, true);
   finishSpin();
+}
+
+// ===== DRAGON VAULT (grand feature) =====
+function maybeAwardKey() {
+  // ~5% chance per paid spin to find a key
+  if (Math.random() < 0.05) awardKey(1, false);
+}
+
+function awardKey(n, fromBonus) {
+  const p = state.players[state.currentPlayer];
+  if ((p.keys || 0) >= KEYS_NEEDED) return; // already full, waiting to open
+  p.keys = Math.min(KEYS_NEEDED, (p.keys || 0) + n);
+  soundCoin();
+  haptic('light');
+  showNotification('🔑', fromBonus
+    ? `Bonus key! Dragon Vault ${p.keys}/${KEYS_NEEDED}`
+    : `You found a Dragon Key! ${p.keys}/${KEYS_NEEDED}`);
+  updateVaultBar();
+  if (p.keys >= KEYS_NEEDED) {
+    vaultReady = true;
+    fireParticles(40, 'bonus');
+  }
+  saveState();
+}
+
+function updateVaultBar() {
+  const p = state.players[state.currentPlayer];
+  const keys = p.keys || 0;
+  const fill = document.getElementById('vault-fill');
+  const txt = document.getElementById('vault-keys-text');
+  const inner = document.getElementById('vault-inner');
+  const label = document.getElementById('vault-label');
+  if (fill) fill.style.width = (keys / KEYS_NEEDED * 100) + '%';
+  if (txt) txt.textContent = keys + '/' + KEYS_NEEDED;
+  if (inner) inner.classList.toggle('ready', keys >= KEYS_NEEDED);
+  if (label) label.textContent = keys >= KEYS_NEEDED ? '🐉 VAULT READY!' : '🔑 DRAGON VAULT';
+}
+
+// Tapping the bar when full opens the vault (in case it's between spins)
+function vaultBarClicked() {
+  const p = state.players[state.currentPlayer];
+  if ((p.keys || 0) >= KEYS_NEEDED && !isSpinning && !document.getElementById('minigame-overlay').classList.contains('active')) {
+    vaultReady = false;
+    triggerGrandVault();
+  }
+}
+
+// The GRAND feature: pick treasure tiles to build a pot until a Dragon seals it.
+function triggerGrandVault() {
+  const p = state.players[state.currentPlayer];
+  p.keys = 0;
+  updateVaultBar();
+  window._isVaultGame = true;
+
+  const bet = state.bet;
+  // 12 tiles: 1 grand crown, 3 dragon "stops", 8 coin multipliers
+  const tiles = [];
+  tiles.push({ type: 'grand' });
+  for (let i = 0; i < 3; i++) tiles.push({ type: 'stop' });
+  const mults = [5, 8, 10, 12, 15, 20, 25, 30];
+  mults.forEach(m => tiles.push({ type: 'coin', mult: m }));
+  // shuffle
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+
+  const gridHTML = `
+    <div style="width:100%">
+      <div id="vault-pot">POT: 0 🪙</div>
+      <div id="vault-grid">
+        ${tiles.map((t, i) => `<button class="vault-tile" id="vtile-${i}" onclick="pickVaultTile(${i})">❓</button>`).join('')}
+      </div>
+    </div>`;
+
+  openMiniGame('🐉 DRAGON\'S FORTUNE VAULT! 👑',
+    'Open chests to grow your pot — keep going until a 🐉 seals the vault!',
+    gridHTML, () => {
+      sessionStats.vaultDone = true;
+    });
+
+  // Guaranteed starter pot so even an unlucky first pick still pays out
+  const starter = bet * 10;
+  window._vaultTiles = tiles;
+  window._vaultPot = starter;
+  window._vaultDone = false;
+  p.coins += starter;
+  updatePlayerUI(state.currentPlayer);
+  const potEl = document.getElementById('vault-pot');
+  if (potEl) potEl.textContent = 'POT: ' + starter.toLocaleString() + ' 🪙';
+
+  fireParticles(60, 'jackpot');
+  soundBonus();
+  p.vaultOpens = (p.vaultOpens || 0) + 1;
+  checkAchievements();
+  saveState();
+}
+
+window.pickVaultTile = function(idx) {
+  if (window._vaultDone) return;
+  const tiles = window._vaultTiles;
+  const t = tiles[idx];
+  const btn = document.getElementById('vtile-' + idx);
+  if (!btn || btn.classList.contains('revealed')) return;
+  btn.classList.add('revealed');
+  const p = state.players[state.currentPlayer];
+  const bet = state.bet;
+
+  if (t.type === 'coin') {
+    const amt = t.mult * bet;
+    window._vaultPot += amt;
+    btn.textContent = '×' + t.mult;
+    p.coins += amt;
+    soundCoin();
+    haptic('light');
+    fireParticles(12, 'win');
+    document.getElementById('vault-pot').textContent = 'POT: ' + window._vaultPot.toLocaleString() + ' 🪙';
+    updatePlayerUI(state.currentPlayer);
+    saveState();
+  } else if (t.type === 'grand') {
+    btn.classList.add('grand');
+    btn.textContent = '👑';
+    const grand = bet * 150 + Math.floor(state.jackpot * 0.2);
+    window._vaultPot += grand;
+    p.coins += grand;
+    state.jackpot = Math.max(10000, Math.floor(state.jackpot * 0.8));
+    updateJackpotDisplay();
+    soundJackpot();
+    haptic('jackpot');
+    fireParticles(120, 'jackpot');
+    endVault(true);
+  } else { // stop / dragon
+    btn.classList.add('stop');
+    btn.textContent = '🐉';
+    soundBigWin();
+    haptic('heavy');
+    endVault(false);
+  }
+};
+
+function endVault(grand) {
+  window._vaultDone = true;
+  // Reveal remaining tiles
+  (window._vaultTiles || []).forEach((t, i) => {
+    const b = document.getElementById('vtile-' + i);
+    if (b && !b.classList.contains('revealed')) {
+      b.classList.add('revealed');
+      b.style.opacity = '0.45';
+      b.textContent = t.type === 'grand' ? '👑' : t.type === 'stop' ? '🐉' : '×' + t.mult;
+    }
+  });
+  const pot = window._vaultPot || 0;
+  const p = state.players[state.currentPlayer];
+  updatePlayerUI(state.currentPlayer);
+  document.getElementById('minigame-result').innerHTML = grand
+    ? `<span style="color:#FFD700">👑 GRAND VAULT! Won <b>${pot.toLocaleString()}</b> coins!</span>`
+    : `<span style="color:#FFD700">🐉 Vault sealed! You banked <b>${pot.toLocaleString()}</b> coins!</span>`;
+  document.getElementById('mg-close-btn').style.display = 'inline-block';
+  checkAchievements();
+  saveState();
 }
 
 // CAT SHRINE
@@ -2083,17 +2410,17 @@ function triggerCrabRace() {
   const crabNames = ['Red Claw 🦀', 'Blue Shell 🦀', 'Golden Pincer 🦀'];
   const yourCrabIdx = Math.floor(Math.random() * 3);
 
-  const lanesHTML = crabNames.map((name, i) => `
+  const lanesHTML = `<div id="crab-race-wrap">` + crabNames.map((name, i) => `
     <div class="crab-lane ${i === yourCrabIdx ? 'your-crab' : ''}">
-      <span class="crab-label">${i === yourCrabIdx ? '⭐ YOURS' : 'CPU'}</span>
+      <span class="crab-label">${i === yourCrabIdx ? '⭐ YOU' : 'CPU'}</span>
       <span class="crab-racer" id="crab-${i}">🦀</span>
       <div class="crab-track"><div class="crab-progress" id="crab-prog-${i}"></div></div>
     </div>
-  `).join('') + `<button id="race-btn" onclick="startCrabRace(${yourCrabIdx}, ${bet})" style="
-    margin-top:10px;background:linear-gradient(135deg,#CC2200,#FF4400);border:2px solid gold;
-    border-radius:10px;color:gold;font-size:1rem;font-weight:700;padding:8px 24px;cursor:pointer;">
-    🦀 RACE!
-  </button>`;
+  `).join('') + `<div style="text-align:center"><button id="race-btn" onclick="startCrabRace(${yourCrabIdx}, ${bet})" style="
+    margin-top:12px;background:linear-gradient(135deg,#CC2200,#FF4400);border:2px solid gold;
+    border-radius:10px;color:gold;font-size:1.1rem;font-weight:700;padding:10px 28px;cursor:pointer;">
+    🦀 START RACE!
+  </button></div></div>`;
 
   openMiniGame('🦀 CRAB RACE!', `Your crab is marked ⭐ — win to get ${bet * 10} coins!`, lanesHTML, null);
 }
@@ -2163,6 +2490,7 @@ function updateAllUI() {
   buildAchievements();
   updateBetButtons();
   updateStreakDisplay();
+  updateVaultBar();
 }
 
 function updatePlayerUI(idx) {
@@ -2205,6 +2533,7 @@ function updateFreeSpinsBar() {
     bar.style.display = 'none';
     freeSpinMultiplier = 1; // reset multiplier when free spins end
   }
+  updateFreeSpinModeUI();
 }
 
 function showWinDisplay(amount, descs) {
@@ -2249,7 +2578,7 @@ function drawWinLines(winningPaylines) {
     const points = line.map(([reelIdx, rowIdx]) => {
       const reelEl = document.getElementById('reel-' + reelIdx);
       const r = reelEl.getBoundingClientRect();
-      const cellH = r.height / 3;
+      const cellH = r.height / NUM_ROWS;
       return {
         x: r.left - containerRect.left + r.width / 2,
         y: r.top  - containerRect.top  + rowIdx * cellH + cellH / 2,
