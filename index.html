@@ -1738,9 +1738,29 @@ function evaluateResult() {
   const winningPaylines = [];
   const winDescriptions = [];
 
+  // Wild stacking: if a reel has 2+ wilds, the whole reel becomes wild for this spin
+  const stackedReels = new Set();
+  reelSymbols.forEach((reel, reelIdx) => {
+    const wildCount = reel.filter(s => SYMBOLS[s].isWild).length;
+    if (wildCount >= 2) {
+      stackedReels.add(reelIdx);
+      // Visual: add glow class to all cells on this reel
+      reel.forEach((_, rowIdx) => {
+        const cell = document.getElementById(`cell-${reelIdx}-${rowIdx}`);
+        if (cell) cell.classList.add('wild-stacked');
+      });
+    }
+  });
+
+  // Build effective symbols (stacked reels are all-wild)
+  const wildIdx = SYMBOLS.findIndex(s => s.isWild);
+  function effectiveSymbol(reelIdx, rowIdx) {
+    return stackedReels.has(reelIdx) ? wildIdx : reelSymbols[reelIdx][rowIdx];
+  }
+
   // Check each payline
   PAYLINES.forEach((line, lineIdx) => {
-    const lineSymbols = line.map(([reel, row]) => reelSymbols[reel][row]);
+    const lineSymbols = line.map(([reel, row]) => effectiveSymbol(reel, row));
     const lineWin = evaluateLine(lineSymbols, bet);
     if (lineWin.amount > 0) {
       totalWin += lineWin.amount;
@@ -1843,6 +1863,24 @@ function evaluateResult() {
   // Check dragon 5
   if (dragonCount >= 5) sessionStats.dragonFives++;
 
+  // Stampede multiplier: each reel with a wild doubles the mult
+  if (stampedeActive) {
+    reelSymbols.forEach((reel, ri) => {
+      if (reel.some(s => SYMBOLS[s].isWild) || stackedReels.has(ri)) {
+        if (!stampedeWildReels.has(ri)) {
+          stampedeWildReels.add(ri);
+          stampedeMult = Math.min(stampedeMult * 2, 32);
+          showNotification('🐉', `Wild reel! Stampede ×${stampedeMult}!`);
+        }
+      }
+    });
+    if (totalWin > 0 && stampedeMult > 1) {
+      const bonus = totalWin * (stampedeMult - 1);
+      totalWin += bonus;
+      p.coins += bonus;
+    }
+  }
+
   // Earn Dragon Vault keys on paid spins (small chance) — builds toward grand feature
   if (!lastSpinWasFree) maybeAwardKey();
 
@@ -1879,6 +1917,13 @@ function evaluateResult() {
       fireParticles(40, 'free');
       finishSpin();
     };
+  }
+
+  // Moon scatter: 3+ moons anywhere trigger Dragon Stampede
+  const moonCount = flat.filter(s => SYMBOLS[s].id === 'moon').length;
+  if (moonCount >= 3 && !triggerFn) {
+    triggerFn = () => activateStampede();
+    triggerLabel = `🌙×${moonCount} DRAGON STAMPEDE!`;
   }
 
   if (triggerFn) {
@@ -1979,6 +2024,26 @@ function finishSpin() {
       showNotification('💸', 'Not enough coins for auto spin!');
     }
   }
+}
+
+function activateStampede() {
+  stampedeActive = true;
+  stampedeMult = 1;
+  stampedeWildReels = new Set();
+  freeSpins = Math.max(freeSpins, 5);
+  freeSpinMultiplier = 1; // stampede has its own multiplier system
+  updateFreeSpinsBar();
+  // Override the free-spins bar to show stampede mode
+  const bar = document.getElementById('free-spins-bar');
+  if (bar) {
+    bar.style.background = 'linear-gradient(90deg, #1a0030, #4a0060, #1a0030)';
+    bar.style.borderColor = '#C44CFF';
+  }
+  showNotification('🐉', 'DRAGON STAMPEDE! Each wild reel doubles your multiplier!');
+  soundBonus();
+  haptic('jackpot');
+  fireParticles(60, 'bonus');
+  finishSpin();
 }
 
 // Update the spin button to clearly show free-spin mode
@@ -2704,6 +2769,16 @@ function updateFreeSpinsBar() {
   } else {
     bar.style.display = 'none';
     freeSpinMultiplier = 1; // reset multiplier when free spins end
+    // Reset stampede when free spins run out
+    if (stampedeActive) {
+      stampedeActive = false;
+      stampedeMult = 1;
+      stampedeWildReels = new Set();
+      if (bar) {
+        bar.style.background = '';
+        bar.style.borderColor = '';
+      }
+    }
   }
   updateFreeSpinModeUI();
 }
@@ -2727,7 +2802,7 @@ function clearWinDisplay() {
 }
 
 function clearCellHighlights() {
-  document.querySelectorAll('.reel-cell').forEach(c => c.classList.remove('winning'));
+  document.querySelectorAll('.reel-cell').forEach(c => c.classList.remove('winning', 'wild-stacked'));
   const canvas = document.getElementById('win-line-overlay');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -2742,18 +2817,18 @@ function drawWinLines(winningPaylines) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!winningPaylines.length) return;
 
-  const containerRect = container.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
   const lineColors = ['#FFD700','#FF4444','#00FF88','#00BFFF','#FF69B4','#FF8C00','#9B59B6','#FFF176','#7FFFD4'];
 
   winningPaylines.forEach((line, idx) => {
     const color = lineColors[idx % lineColors.length];
     const points = line.map(([reelIdx, rowIdx]) => {
-      const reelEl = document.getElementById('reel-' + reelIdx);
-      const r = reelEl.getBoundingClientRect();
-      const cellH = r.height / NUM_ROWS;
+      const cellEl = document.getElementById(`cell-${reelIdx}-${rowIdx}`);
+      if (!cellEl) return { x: 0, y: 0 };
+      const r = cellEl.getBoundingClientRect();
       return {
-        x: r.left - containerRect.left + r.width / 2,
-        y: r.top  - containerRect.top  + rowIdx * cellH + cellH / 2,
+        x: r.left - canvasRect.left + r.width / 2,
+        y: r.top  - canvasRect.top  + r.height / 2,
       };
     });
 
@@ -2937,7 +3012,7 @@ function addCoins() {
   updatePlayerUI();
   soundFreeSpins();
   fireParticles(20, 'win');
-  showNotification('💰', '+1000 coins added! Go wild!');
+  showNotification('💰', '+$1,000 added! Go wild!');
   saveState();
 }
 
