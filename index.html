@@ -1001,6 +1001,91 @@
   .flip-result { font-size: 1.4rem; animation: popIn 0.3s ease; }
   @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
 
+  /* ===== MIDNIGHT ZOOMIES ===== */
+  #zoomies-arena {
+    position: relative; width: 100%; height: 200px;
+    background: linear-gradient(180deg, #0a0020, #1a0040);
+    border-radius: 12px; border: 2px solid #442288;
+    overflow: hidden;
+  }
+  .zoomy-cat {
+    position: absolute; font-size: 2.2rem; cursor: pointer;
+    transition: transform 0.05s; user-select: none; line-height: 1;
+    filter: drop-shadow(0 0 6px rgba(200,160,255,0.8));
+  }
+  .zoomy-cat:active { transform: scale(0.7) !important; }
+  .zoomy-cat.caught { animation: catchPop 0.4s ease forwards; pointer-events: none; }
+  @keyframes catchPop {
+    0%   { transform: scale(1.5); }
+    50%  { transform: scale(2.2); opacity: 1; }
+    100% { transform: scale(0);   opacity: 0; }
+  }
+  #zoomies-timer {
+    text-align: center; font-size: 1.4rem; font-weight: 900;
+    color: #C8A8FF; margin-top: 8px;
+  }
+
+  /* ===== DIAMOND SCRATCH ===== */
+  .scratch-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; width: 100%; max-width: 280px;
+  }
+  .scratch-cell {
+    aspect-ratio: 1; border-radius: 10px; border: 2px solid rgba(255,200,0,0.4);
+    background: linear-gradient(135deg, #1a0a2a, #2a1040);
+    font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .scratch-cell::before {
+    content: '?'; position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; background: linear-gradient(135deg, #3a1060, #5a2080);
+    font-size: 1.6rem; font-weight: 900; color: rgba(200,150,255,0.6);
+    transition: all 0.3s;
+  }
+  .scratch-cell.revealed::before { opacity: 0; transform: scale(0); }
+  .scratch-cell.revealed { border-color: var(--gold); background: rgba(60,20,80,0.9); }
+  .scratch-cell.matched { border-color: #00FF88 !important; box-shadow: 0 0 16px #00FF8888; animation: matchFlash 0.4s ease; }
+  @keyframes matchFlash { 0%,100% { background: rgba(60,20,80,0.9); } 50% { background: rgba(0,180,80,0.3); } }
+
+  /* ===== TREAT MACHINE ===== */
+  #treat-machine-wrap { width: 100%; text-align: center; }
+  .treat-cat-row { display: flex; justify-content: center; gap: 8px; margin: 8px 0; font-size: 2rem; }
+  .treat-cat { transition: transform 0.1s; display: inline-block; }
+  .treat-cat.happy { animation: treatHappy 0.3s ease; }
+  @keyframes treatHappy { 0%,100% { transform: scale(1); } 50% { transform: scale(1.4) rotate(10deg); } }
+  #treat-btn {
+    font-size: 2rem; padding: 12px 28px; background: linear-gradient(135deg, #884400, #FF8800);
+    border: 3px solid gold; border-radius: 16px; cursor: pointer; color: gold; font-weight: 900;
+    transition: transform 0.1s; active:transform: scale(0.9);
+  }
+  #treat-btn:active { transform: scale(0.9); }
+  #treat-progress-bar {
+    height: 14px; background: rgba(100,50,0,0.4); border-radius: 7px; overflow: hidden;
+    margin: 8px auto; width: 80%;
+  }
+  #treat-progress-fill {
+    height: 100%; background: linear-gradient(90deg, #FF8800, #FFD700);
+    border-radius: 7px; transition: width 0.1s linear;
+  }
+
+  /* ===== GRUMPY NAP ===== */
+  .nap-cat {
+    font-size: 2.4rem; cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid rgba(255,180,0,0.4); background: rgba(40,10,0,0.6);
+    animation: sleepBob 2s ease-in-out infinite;
+  }
+  .nap-cat:nth-child(2) { animation-delay: 0.4s; }
+  .nap-cat:nth-child(3) { animation-delay: 0.8s; }
+  .nap-cat:nth-child(4) { animation-delay: 1.2s; }
+  .nap-cat:nth-child(5) { animation-delay: 1.6s; }
+  @keyframes sleepBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  .nap-cat:disabled { cursor: not-allowed; opacity: 0.5; animation: none; }
+  .nap-cat.woken { animation: wakeShake 0.4s ease; border-color: #00FF88; }
+  .nap-cat.grumpy-reveal { animation: grumpyShake 0.5s ease; border-color: #FF4444; background: rgba(120,0,0,0.5); }
+  @keyframes wakeShake   { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-15deg) scale(1.2)} 75%{transform:rotate(15deg) scale(1.2)} }
+  @keyframes grumpyShake { 0%,100%{transform:rotate(0)} 20%,60%{transform:rotate(-10deg) scale(1.3)} 40%,80%{transform:rotate(10deg) scale(1.3)} }
+
   /* ===== NOTIFICATION ===== */
   #notification {
     position: fixed;
@@ -1557,8 +1642,9 @@ body::after {
 <!-- VERSION FOOTER -->
 <div id="version-footer">
   <details>
-    <summary>v2.1 · Lucky Paws Casino</summary>
+    <summary>v2.2 · Lucky Paws Casino</summary>
     <div id=”changelog”>
+      <b>v2.2</b> — 4 new mini games: Midnight Zoomies (🌙×3 on line: catch bouncing cats), Diamond Scratch (💎×3 on line: 9-panel scratch card), Treat Machine (🪙×3: mash button before treats run out), Grumpy Cat Nap (😸×4 on line: wake cats without hitting the grumpy one)<br>
       <b>v2.1</b> — PAW LOCK free spins (🌸×3: reels lock when 🐱/🐾 land, each lock resets to 3 spins, big payout on finish), Neko Tower mini game (🏮×3: climb 5 floors picking lucky cats, cash out anytime), Lucky Coin Flip (🔔/🪙×3: double-or-nothing escalator up to 6 levels, cash out anytime), win highlights show exact run only, bet buttons show true spin cost<br>
       <b>v2.0</b> — Full visual reskin: new “Neon Gold” identity (midnight plum, gold × magenta, cyan accents), Audiowide + Chakra Petch type, marquee frame lights, living background, breathing spin button, big-win light rays, themed win lines &amp; particles, bet buttons now show true cost per spin, subtitle removed<br>
       <b>v1.9.1</b> — Paw Race: cat racers now have fun names (Chairman Meow, Dumpling, Soy Sauce…), removed CPU/crab references, result messages updated, achievement renamed to Paw Champ<br>
@@ -2103,6 +2189,8 @@ function evaluateResult() {
   const lanternOnLine = maxOnLine('lantern');
   const bellOnLine    = maxOnLine('bell');
   const coinOnLine    = maxOnLine('coin');
+  const diamondOnLine = maxOnLine('diamond');
+  const moonOnLine    = maxOnLine('moon');
 
   // Keep flat counts for stat tracking only
   const dragonCount  = flat.filter(s => SYMBOLS[s].id === 'dragon').length;
@@ -2215,22 +2303,25 @@ function evaluateResult() {
   if (pawLockActive) {
     checkPawLocks();
   } else {
-    if (catCount >= 3)             { triggerFn = () => triggerCatShrine();    triggerLabel = `🐱×${catCount} SCATTER!`; }
-    else if (nekoOnLine >= 3)     { triggerFn = () => triggerDragonEgg();    triggerLabel = `😸×${nekoOnLine} HAPPY NEKOS!`; }
-    else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();    triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
-    else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();  triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
-    else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();   triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
-    else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel(); triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
-    else if (pawOnLine >= 3)      { triggerFn = () => triggerCrabRace();     triggerLabel = `🐾×${pawOnLine} LUCKY PAWS!`; }
-    else if (lanternOnLine >= 3)  { triggerFn = () => triggerNekoTower();    triggerLabel = `🏮×${lanternOnLine} NEKO TOWER!`; }
-    else if (bellOnLine >= 3)     { triggerFn = () => triggerCoinFlip();     triggerLabel = `🔔×${bellOnLine} LUCKY BELLS!`; }
-    else if (coinOnLine >= 3)     { triggerFn = () => triggerCoinFlip();     triggerLabel = `🪙×${coinOnLine} COIN FRENZY!`; }
+    if (catCount >= 3)             { triggerFn = () => triggerCatShrine();       triggerLabel = `🐱×${catCount} SCATTER!`; }
+    else if (nekoOnLine >= 4)     { triggerFn = () => triggerGrumpyNap();       triggerLabel = `😾×${nekoOnLine} GRUMPY ALERT!`; }
+    else if (nekoOnLine >= 3)     { triggerFn = () => triggerDragonEgg();       triggerLabel = `😸×${nekoOnLine} HAPPY NEKOS!`; }
+    else if (dragonOnLine >= 3)   { triggerFn = () => triggerDragonEgg();       triggerLabel = `🐉×${dragonOnLine} ON A LINE!`; }
+    else if (hongbaoOnLine >= 3)  { triggerFn = () => triggerHongbaoRain();     triggerLabel = `🧧×${hongbaoOnLine} ON A LINE!`; }
+    else if (fishOnLine >= 3)     { triggerFn = () => triggerFishFrenzy();      triggerLabel = `🐠×${fishOnLine} ON A LINE!`; }
+    else if (fortuneOnLine >= 3)  { triggerFn = () => triggerFortuneWheel();    triggerLabel = `🔮×${fortuneOnLine} ON A LINE!`; }
+    else if (pawOnLine >= 3)      { triggerFn = () => triggerCrabRace();        triggerLabel = `🐾×${pawOnLine} LUCKY PAWS!`; }
+    else if (lanternOnLine >= 3)  { triggerFn = () => triggerNekoTower();       triggerLabel = `🏮×${lanternOnLine} NEKO TOWER!`; }
+    else if (bellOnLine >= 3)     { triggerFn = () => triggerCoinFlip();        triggerLabel = `🔔×${bellOnLine} LUCKY BELLS!`; }
+    else if (coinOnLine >= 3)     { triggerFn = () => triggerTreatMachine();    triggerLabel = `🪙×${coinOnLine} TREAT TIME!`; }
+    else if (diamondOnLine >= 3)  { triggerFn = () => triggerDiamondScratch();  triggerLabel = `💎×${diamondOnLine} DIAMOND SCRATCH!`; }
+    else if (moonOnLine >= 3)     { triggerFn = () => triggerMidnightZoomies(); triggerLabel = `🌙×${moonOnLine} MIDNIGHT ZOOMIES!`; }
     else if (blossomCount >= 3)   {
       triggerLabel = `🌸×${blossomCount} PAW LOCK!`;
       triggerFn = () => activatePawLock();
     }
 
-    // Moon scatter: 3+ moons anywhere trigger Dragon Stampede
+    // Moon scatter: 3+ moons anywhere trigger Dragon Stampede (line check above handles the mini game)
     const moonCount = flat.filter(s => SYMBOLS[s].id === 'moon').length;
     if (moonCount >= 3 && !triggerFn) {
       triggerFn = () => activateStampede();
@@ -3444,6 +3535,388 @@ window.doFlip = function(call) {
     });
     fireParticles(15, 'win');
   }, 600);
+};
+
+// ===== MIDNIGHT ZOOMIES =====
+function triggerMidnightZoomies() {
+  const bet = state.bet;
+  // Each cat has a hidden prize
+  const catValues = [3, 6, 12, 25, 50].map(m => m * bet);
+  const shuffled = [...catValues].sort(() => Math.random() - 0.5);
+  const catEmojis = ['🐱','😸','😺','😻','🙀'];
+
+  openMiniGame('🌙 MIDNIGHT ZOOMIES!', 'Catch a cat before they escape! (8 seconds)', '<div id="zoomies-arena"></div><div id="zoomies-timer">⏱ 8</div>', null);
+
+  const arena = document.getElementById('zoomies-arena');
+  if (!arena) return;
+
+  // Physics state for each cat
+  const cats = catEmojis.map((emoji, i) => {
+    const el = document.createElement('div');
+    el.className = 'zoomy-cat';
+    el.textContent = emoji;
+    const x = 20 + Math.random() * 240;
+    const y = 20 + Math.random() * 140;
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+    arena.appendChild(el);
+
+    const state = {
+      el, x, y,
+      vx: (Math.random() - 0.5) * 6 + (Math.random() > 0.5 ? 3 : -3),
+      vy: (Math.random() - 0.5) * 4 + (Math.random() > 0.5 ? 2 : -2),
+      prize: shuffled[i],
+      caught: false
+    };
+
+    function catchIt(e) {
+      e.preventDefault();
+      if (state.caught) return;
+      state.caught = true;
+      el.classList.add('caught');
+      clearInterval(physics);
+      clearInterval(countdown);
+
+      const prize = state.prize;
+      const p = window.state.player;
+      p.coins += prize;
+      updatePlayerUI();
+      soundBigWin();
+      haptic('heavy');
+      fireParticles(40, 'win');
+
+      // Stop all other cats
+      cats.forEach(c => {
+        if (!c.caught && c.el) {
+          c.el.style.transition = 'all 0.5s';
+          c.el.style.opacity = '0.3';
+          c.el.onclick = null;
+        }
+      });
+
+      setTimeout(() => {
+        document.getElementById('minigame-result').innerHTML =
+          `<span style="color:#C8A8FF">🌙 Caught ${el.textContent}! Prize: <b>${fmt$(prize)}</b>!</span>`;
+        document.getElementById('mg-close-btn').style.display = 'inline-block';
+      }, 500);
+      saveState();
+    }
+
+    el.onclick = catchIt;
+    el.addEventListener('touchstart', catchIt, { passive: false });
+    return state;
+  });
+
+  const arenaW = 310, arenaH = 180;
+
+  const physics = setInterval(() => {
+    cats.forEach(c => {
+      if (c.caught) return;
+      c.x += c.vx; c.y += c.vy;
+      // Bounce off walls
+      if (c.x < 5 || c.x > arenaW - 40) { c.vx *= -1; c.x = Math.max(5, Math.min(arenaW - 40, c.x)); }
+      if (c.y < 5 || c.y > arenaH - 40) { c.vy *= -1; c.y = Math.max(5, Math.min(arenaH - 40, c.y)); }
+      // Random direction nudges for chaos
+      if (Math.random() < 0.03) c.vx += (Math.random() - 0.5) * 2;
+      if (Math.random() < 0.03) c.vy += (Math.random() - 0.5) * 2;
+      // Speed clamp
+      const speed = Math.sqrt(c.vx*c.vx + c.vy*c.vy);
+      if (speed > 8) { c.vx = c.vx/speed*8; c.vy = c.vy/speed*8; }
+      if (speed < 2) { c.vx *= 1.5; c.vy *= 1.5; }
+      c.el.style.left = c.x + 'px';
+      c.el.style.top  = c.y + 'px';
+    });
+  }, 40);
+
+  let timeLeft = 8;
+  const countdown = setInterval(() => {
+    timeLeft--;
+    const timerEl = document.getElementById('zoomies-timer');
+    if (timerEl) timerEl.textContent = timeLeft <= 3 ? `⏱ ${timeLeft} 😱` : `⏱ ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(physics);
+      clearInterval(countdown);
+      // Check if any cat was caught
+      if (!cats.some(c => c.caught)) {
+        // Escape — they all run off screen
+        cats.forEach(c => {
+          c.el.style.transition = 'all 0.6s';
+          c.el.style.transform = 'scale(0)';
+          c.el.onclick = null;
+        });
+        setTimeout(() => {
+          document.getElementById('minigame-result').innerHTML =
+            `<span style="color:#FF9944">😹 They all escaped! The zoomies were too strong!</span>`;
+          document.getElementById('mg-close-btn').style.display = 'inline-block';
+        }, 700);
+        saveState();
+      }
+    }
+  }, 1000);
+}
+
+// ===== DIAMOND SCRATCH =====
+function triggerDiamondScratch() {
+  const bet = state.bet;
+  // 9 cells — 3 gems hidden, scratch to reveal, match 3 = big prize
+  const gems = ['💎','💙','💜','🟡','🔮','❤️','🌙','🐱','✨'];
+  // Place 3 matched pairs + prizes among 9 cells
+  const matchGem = gems[Math.floor(Math.random() * 4)]; // one of the high-value gems
+  const matchPrize = [30, 50, 80, 120][Math.floor(Math.random() * 4)] * bet;
+  // Build pool: 3 of matchGem, 6 random others
+  const pool = [matchGem, matchGem, matchGem];
+  while (pool.length < 9) {
+    const g = gems[Math.floor(Math.random() * gems.length)];
+    if (g !== matchGem) pool.push(g);
+  }
+  // Fisher-Yates shuffle
+  for (let i = 8; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+
+  const cellsHTML = pool.map((gem, i) =>
+    `<button class="scratch-cell" id="sc-${i}" onclick="scratchCell(${i})">${gem}</button>`
+  ).join('');
+
+  openMiniGame('💎 DIAMOND SCRATCH!', 'Scratch to reveal — find 3 matching gems to win!',
+    `<div class="scratch-grid">${cellsHTML}</div>`, null);
+
+  window._scratchPool = pool;
+  window._scratchMatch = matchGem;
+  window._scratchPrize = matchPrize;
+  window._scratchRevealed = new Set();
+  window._scratchBet = bet;
+}
+
+window.scratchCell = function(idx) {
+  const btn = document.getElementById('sc-' + idx);
+  if (!btn || btn.classList.contains('revealed')) return;
+  btn.classList.add('revealed');
+  soundCoin();
+  haptic('light');
+
+  window._scratchRevealed.add(idx);
+  const pool = window._scratchPool;
+  const matchGem = window._scratchMatch;
+  const matchPrize = window._scratchPrize;
+
+  // Count how many match gems are revealed
+  const matchCount = [...window._scratchRevealed].filter(i => pool[i] === matchGem).length;
+
+  if (matchCount >= 3) {
+    // Winner!
+    [...window._scratchRevealed].forEach(i => {
+      const b = document.getElementById('sc-' + i);
+      if (b && pool[i] === matchGem) b.classList.add('matched');
+    });
+    const p = state.player;
+    p.coins += matchPrize;
+    updatePlayerUI();
+    soundJackpot();
+    haptic('jackpot');
+    fireParticles(60, 'jackpot');
+    // Disable remaining cells
+    for (let i = 0; i < 9; i++) {
+      const b = document.getElementById('sc-' + i);
+      if (b && !b.classList.contains('revealed')) b.disabled = true;
+    }
+    setTimeout(() => {
+      document.getElementById('minigame-result').innerHTML =
+        `<span style="color:#FFD700">💎 THREE ${matchGem}! Won <b>${fmt$(matchPrize)}</b>!</span>`;
+      document.getElementById('mg-close-btn').style.display = 'inline-block';
+    }, 300);
+    saveState();
+    return;
+  }
+
+  // All 9 scratched with no match?
+  if (window._scratchRevealed.size >= 9) {
+    const consolation = 2 * window._scratchBet;
+    const p = state.player;
+    p.coins += consolation;
+    updatePlayerUI();
+    document.getElementById('minigame-result').innerHTML =
+      `<span style="color:#FF9944">No match... but here's a consolation ${fmt$(consolation)}!</span>`;
+    document.getElementById('mg-close-btn').style.display = 'inline-block';
+    saveState();
+  }
+};
+
+// ===== TREAT MACHINE =====
+function triggerTreatMachine() {
+  const bet = state.bet;
+  const cats = ['🐱','😸','😺','😻','🐾'];
+  const catsHTML = cats.map((c, i) =>
+    `<span class="treat-cat" id="tc-${i}">${c}</span>`
+  ).join('');
+
+  const html = `
+    <div id="treat-machine-wrap">
+      <div style="color:#FF9944;font-size:0.85rem;margin-bottom:4px">Mash the button before the treats run out!</div>
+      <div class="treat-cat-row">${catsHTML}</div>
+      <div id="treat-progress-bar"><div id="treat-progress-fill" style="width:100%"></div></div>
+      <div style="color:#FFD700;font-size:1.1rem;font-weight:700;margin:4px 0" id="treat-score">🐟 Treats: 0</div>
+      <button id="treat-btn" onclick="pressTreat()">🐟 GIVE TREAT!</button>
+    </div>`;
+
+  openMiniGame('🪙 TREAT MACHINE!', `Mash to earn treats — each one worth ${fmt$(bet)}!`, html, null);
+
+  window._treatCount = 0;
+  window._treatBet = bet;
+  window._treatActive = true;
+
+  let timeLeft = 1.0; // 0→1 bar drains in ~6 seconds at 100ms ticks
+  const drain = setInterval(() => {
+    if (!window._treatActive) { clearInterval(drain); return; }
+    timeLeft -= 0.016; // drain rate — can partially refill on each press
+    if (timeLeft < 0) timeLeft = 0;
+    const fill = document.getElementById('treat-progress-fill');
+    if (fill) fill.style.width = (timeLeft * 100) + '%';
+    // Color warning
+    if (fill) fill.style.background = timeLeft < 0.25 ? '#FF4444' : timeLeft < 0.5 ? '#FF8800' : 'linear-gradient(90deg,#FF8800,#FFD700)';
+
+    if (timeLeft <= 0) {
+      clearInterval(drain);
+      window._treatActive = false;
+      const total = window._treatCount * bet;
+      const p = state.player;
+      p.coins += total;
+      updatePlayerUI();
+      soundBigWin();
+      fireParticles(Math.min(window._treatCount * 3, 60), 'win');
+      document.getElementById('treat-btn').disabled = true;
+      document.getElementById('minigame-result').innerHTML =
+        `<span style="color:#FFD700">🐟 Fed ${window._treatCount} treats! Won <b>${fmt$(total)}</b>!</span>`;
+      document.getElementById('mg-close-btn').style.display = 'inline-block';
+      saveState();
+    }
+  }, 100);
+}
+
+window.pressTreat = function() {
+  if (!window._treatActive) return;
+  window._treatCount++;
+  soundCoin();
+  haptic('light');
+  // Refill bar a little each press
+  const fill = document.getElementById('treat-progress-fill');
+  const currentW = parseFloat(fill ? fill.style.width : '50') / 100;
+  let newVal = Math.min(1, currentW + 0.12);
+  if (fill) fill.style.width = (newVal * 100) + '%';
+
+  // Happy cat animation
+  const catIdx = Math.floor(Math.random() * 5);
+  const cat = document.getElementById('tc-' + catIdx);
+  if (cat) {
+    cat.classList.remove('happy');
+    void cat.offsetWidth;
+    cat.classList.add('happy');
+  }
+
+  const scoreEl = document.getElementById('treat-score');
+  if (scoreEl) scoreEl.textContent = `🐟 Treats: ${window._treatCount}`;
+};
+
+// ===== GRUMPY CAT NAP =====
+function triggerGrumpyNap() {
+  const bet = state.bet;
+  const grumpyIdx = Math.floor(Math.random() * 5);
+  const prizes = [4, 8, 15, 25, 40].sort(() => Math.random() - 0.5);
+  let woken = 0;
+  let totalWon = 0;
+  let gameOver = false;
+
+  // Sleeping cats — all look the same until woken
+  const catsHTML = [0,1,2,3,4].map(i =>
+    `<button class="nap-cat" id="nap-${i}" onclick="wakeNap(${i})">😴</button>`
+  ).join('');
+
+  openMiniGame('😾 GRUMPY CAT NAP!',
+    'Wake the sleeping cats for prizes — but DON\'T wake the grumpy one! 😾',
+    `<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">${catsHTML}</div>
+     <div style="color:#FF9944;font-size:0.8rem;margin-top:8px">Prize so far: <span id="nap-total">${fmt$(0)}</span></div>`,
+    null);
+
+  window._napGrumpy = grumpyIdx;
+  window._napPrizes = prizes;
+  window._napWoken = 0;
+  window._napTotal = 0;
+  window._napBet = bet;
+  window._napOver = false;
+}
+
+window.wakeNap = function(idx) {
+  if (window._napOver) return;
+  const btn = document.getElementById('nap-' + idx);
+  if (!btn || btn.disabled) return;
+  btn.disabled = true;
+
+  const isGrumpy = idx === window._napGrumpy;
+  const prizes = window._napPrizes;
+  const bet = window._napBet;
+
+  if (isGrumpy) {
+    window._napOver = true;
+    btn.textContent = '😾';
+    btn.classList.add('grumpy-reveal');
+    soundLose();
+    haptic('heavy');
+    // Disable remaining
+    [0,1,2,3,4].forEach(i => {
+      const b = document.getElementById('nap-' + i);
+      if (b && !b.disabled) {
+        b.disabled = true;
+        b.style.opacity = '0.4';
+      }
+    });
+    const kept = window._napTotal;
+    if (kept > 0) {
+      const p = state.player;
+      p.coins += kept;
+      updatePlayerUI();
+    }
+    setTimeout(() => {
+      document.getElementById('minigame-result').innerHTML = kept > 0
+        ? `<span style="color:#FF8888">😾 GRUMPY! But you kept <b>${fmt$(kept)}</b>!</span>`
+        : `<span style="color:#FF4444">😾 THE GRUMPY ONE! No treats for you!</span>`;
+      document.getElementById('mg-close-btn').style.display = 'inline-block';
+    }, 600);
+    saveState();
+    return;
+  }
+
+  // Happy wake
+  const prize = prizes[window._napWoken] * bet;
+  window._napTotal += prize;
+  window._napWoken++;
+  btn.textContent = ['😻','😺','😸','🐱','🥰'][Math.floor(Math.random()*5)];
+  btn.classList.add('woken');
+  soundCoin();
+  haptic('medium');
+  fireParticles(15, 'win');
+
+  const totalEl = document.getElementById('nap-total');
+  if (totalEl) totalEl.textContent = fmt$(window._napTotal);
+
+  // If all 4 non-grumpy cats woken = bonus
+  if (window._napWoken >= 4) {
+    window._napOver = true;
+    const bonus = window._napTotal + 20 * bet; // bonus for finding all
+    const p = state.player;
+    p.coins += bonus;
+    updatePlayerUI();
+    soundJackpot();
+    haptic('jackpot');
+    fireParticles(70, 'jackpot');
+    [0,1,2,3,4].forEach(i => {
+      const b = document.getElementById('nap-' + i);
+      if (b && i === window._napGrumpy) b.textContent = '😾';
+    });
+    setTimeout(() => {
+      document.getElementById('minigame-result').innerHTML =
+        `<span style="color:#FFD700">🏆 ALL CATS WOKEN! Bonus! Won <b>${fmt$(bonus)}</b>!</span>`;
+      document.getElementById('mg-close-btn').style.display = 'inline-block';
+    }, 400);
+    saveState();
+  }
 };
 
 // ===== UI UPDATES =====
